@@ -1,4 +1,5 @@
 import { AuditableEntity } from '../common/auditable.entity';
+import { ObjectId } from 'mongodb';
 
 type Preferences = {
   gender?: string;
@@ -16,6 +17,8 @@ export class User extends AuditableEntity {
   password: string;
   isAdmin: boolean;
   preferences: Preferences;
+  following: ObjectId[];
+  followers: ObjectId[];
 
   constructor(firstName: string, lastName: string, username: string, email: string, password: string) {
     super();
@@ -26,5 +29,7 @@ export class User extends AuditableEntity {
     this.password = password;
     this.isAdmin = false;
     this.preferences = {};
+    this.following = [];
+    this.followers = [];
   }
 }

@@ -17,11 +17,13 @@ export class AuthService implements IAuthService {
   public readonly userRepository: IUserRepository;
   public readonly tokenService: ITokenService;
   public readonly otpRepository: IOtpRepository;
+  public currentUserId: string | null;
 
   constructor({ tokenService, userRepository, otpRepository }: Dependencies) {
     this.userRepository = userRepository;
     this.tokenService = tokenService;
     this.otpRepository = otpRepository;
+    this.currentUserId = null;
   }
 
   async listUsers(info: PaginatedRequest): Promise<User[]> {

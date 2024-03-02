@@ -82,7 +82,7 @@ export function authController({ dependencies, router }: { dependencies: Depende
     dependencies.authenticationMiddleware.authenticateForAdmin,
     async function getUsers(request: Request, response: Response, next: NextFunction) {
       try {
-        const result = await dependencies.auth.queries.getUsers(
+        const result = await dependencies.user.queries.getUsers(
           { pageIndex: request.query.pageIndex, pageSize: request.query.pageSize },
           response,
         );

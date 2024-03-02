@@ -9,6 +9,7 @@ export function makeApp(dependencies: Dependencies) {
   middlewares.onRequest({ app });
 
   app.use(controllers.authController({ dependencies, router: express.Router() }));
+  app.use(controllers.userController({ dependencies, router: express.Router() }));
 
   middlewares.onResponse({ app, dependencies });
 

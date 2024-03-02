@@ -1,13 +1,15 @@
-import { ITokenService } from '@application/interfaces';
+import { IAuthService, ITokenService } from '@application/interfaces';
 import CustomResponse from '@application/interfaces/custom.response';
 import { Dependencies } from '@infrastructure/di';
 import { Request, Response, NextFunction } from 'express';
 
 export class AuthenticationMiddleware {
   public readonly tokenService: ITokenService;
+  public readonly authService: IAuthService;
 
-  constructor({ tokenService }: Dependencies) {
+  constructor({ tokenService, authService }: Dependencies) {
     this.tokenService = tokenService;
+    this.authService = authService;
   }
 
   authenticateForAdmin = (req: Request, res: Response, next: NextFunction) => {
@@ -28,6 +30,7 @@ export class AuthenticationMiddleware {
           isAdmin: verifyTokenResult.isAdmin,
           email: verifyTokenResult.email,
         };
+        this.authService.currentUserId = verifyTokenResult._id;
         next();
       } else {
         return new CustomResponse(null, 'Jwt Expired').error401(res);
@@ -50,6 +53,8 @@ export class AuthenticationMiddleware {
             isAdmin: decoded.isAdmin,
             email: decoded.email,
           };
+          this.authService.currentUserId = decoded._id;
+
           next();
         }
       } catch (error) {
@@ -75,6 +80,8 @@ export class AuthenticationMiddleware {
           isAdmin: verifyTokenResult.isAdmin,
           email: verifyTokenResult.email,
         };
+        this.authService.currentUserId = verifyTokenResult._id;
+
         next();
       } else {
         return new CustomResponse(null, 'Jwt Expired').error401(res);
@@ -97,6 +104,8 @@ export class AuthenticationMiddleware {
             isAdmin: decoded.isAdmin,
             email: decoded.email,
           };
+          this.authService.currentUserId = decoded._id;
+
           next();
         }
       } catch (error) {
