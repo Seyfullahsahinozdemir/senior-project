@@ -7,7 +7,7 @@ export type GetProfileCommandRequest = Readonly<{
   _id: string;
 }>;
 
-export function makeGetProfileCommand({ authService }: Pick<Dependencies, 'authService' | 'userRepository'>) {
+export function makeGetProfileCommand({ authService }: Pick<Dependencies, 'authService'>) {
   return async function getProfileCommand(command: GetProfileCommandRequest, res: Response) {
     await validate(command);
     const result = await authService.getMyProfile(command._id);

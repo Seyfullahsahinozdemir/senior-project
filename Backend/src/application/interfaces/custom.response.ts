@@ -1,10 +1,10 @@
 import { Response } from 'express';
 
-class CustomResponse {
-  data: any;
-  message: string;
+export default class CustomResponse {
+  private data: any;
+  private message?: string;
 
-  constructor(data: any, message: string) {
+  constructor(data: any, message?: string) {
     this.data = data;
     this.message = message;
   }
@@ -29,7 +29,7 @@ class CustomResponse {
     return res.status(500).json({
       success: false,
       data: this.data,
-      message: this.message ?? 'Error Occurred',
+      message: this.message ?? 'Internal Server Error',
     });
   }
 
@@ -57,5 +57,3 @@ class CustomResponse {
     });
   }
 }
-
-export default CustomResponse;

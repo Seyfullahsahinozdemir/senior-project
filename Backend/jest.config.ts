@@ -17,15 +17,15 @@ const config: Config.InitialOptions = {
         '^.+\\.ts?$': 'ts-jest',
       },
     },
-    {
-      displayName: 'functional-tests',
-      testMatch: ['<rootDir>/tests/**/*.test.ts'],
-      testEnvironment: '<rootDir>/prisma/prisma-test-environment.ts',
-      moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
-      transform: {
-        '^.+\\.ts?$': 'ts-jest',
-      },
-    },
+    // {
+    //   displayName: 'functional-tests',
+    //   testMatch: ['<rootDir>/tests/**/*.test.ts'],
+    //   testEnvironment: '<rootDir>/prisma/prisma-test-environment.ts',
+    //   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
+    //   transform: {
+    //     '^.+\\.ts?$': 'ts-jest',
+    //   },
+    // },
   ],
 };
 

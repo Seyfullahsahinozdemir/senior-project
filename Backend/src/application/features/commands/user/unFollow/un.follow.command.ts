@@ -12,6 +12,6 @@ export function makeUnFollowCommand({ userService }: Pick<Dependencies, 'userSer
   return async function unFollowCommand(command: UnFollowCommandRequest, res: Response) {
     await validate(command);
     await userService.unFollow(command.currentUserId, command.targetUserId);
-    return new CustomResponse(null, 'success').success(res);
+    return new CustomResponse(null, 'Unfollow success').success(res);
   };
 }

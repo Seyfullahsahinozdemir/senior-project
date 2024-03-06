@@ -5,7 +5,6 @@ import CustomResponse from '@application/interfaces/custom.response';
 import { RequestCategoryDTO } from '@application/dto/category/request.category';
 
 export type CreateCommandRequest = Readonly<{
-  _id: string;
   name: string;
   description: any;
 }>;
@@ -14,6 +13,6 @@ export function makeCreateCommand({ categoryService }: Pick<Dependencies, 'categ
   return async function createCommand(command: CreateCommandRequest, res: Response) {
     await validate(command);
     const category = await categoryService.createCategory(command as RequestCategoryDTO);
-    return new CustomResponse(category, 'success').success(res);
+    return new CustomResponse(category, 'Category created successful').created(res);
   };
 }

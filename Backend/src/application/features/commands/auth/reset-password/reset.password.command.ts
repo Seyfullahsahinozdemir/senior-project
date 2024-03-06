@@ -13,7 +13,7 @@ export function makeResetPasswordCommand({ authService }: Pick<Dependencies, 'au
     const result = await authService.resetPassword(command._id);
 
     if (!result) {
-      return new CustomResponse(result, 'Login unsuccessful').error400(res);
+      return new CustomResponse(result, 'An error occurred while reset password.').error400(res);
     }
 
     return new CustomResponse(null, 'Check email for verification.').success(res);

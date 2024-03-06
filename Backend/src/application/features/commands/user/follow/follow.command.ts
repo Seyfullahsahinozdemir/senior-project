@@ -12,6 +12,6 @@ export function makeFollowCommand({ userService }: Pick<Dependencies, 'userServi
   return async function followCommand(command: FollowCommandRequest, res: Response) {
     await validate(command);
     await userService.follow(command.currentUserId, command.targetUserId);
-    return new CustomResponse(null, 'success').success(res);
+    return new CustomResponse(null, 'Follow success').success(res);
   };
 }

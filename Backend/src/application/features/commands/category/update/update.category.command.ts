@@ -14,6 +14,6 @@ export function makeUpdateCommand({ categoryService }: Pick<Dependencies, 'categ
   return async function updateCommand(command: UpdateCommandRequest, res: Response) {
     await validate(command);
     await categoryService.updateCategory(command as RequestCategoryDTO);
-    return new CustomResponse(null, 'success').success(res);
+    return new CustomResponse(null, 'Category updated successful').success(res);
   };
 }
