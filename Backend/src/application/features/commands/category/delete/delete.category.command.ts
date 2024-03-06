@@ -11,6 +11,6 @@ export function makeDeleteCommand({ categoryService }: Pick<Dependencies, 'categ
   return async function deleteCommand(command: DeleteCommandRequest, res: Response) {
     await validate(command);
     await categoryService.deleteCategory(command._id);
-    return new CustomResponse(null, 'success').success(res);
+    return new CustomResponse(null, 'Category deleted successful').success(res);
   };
 }

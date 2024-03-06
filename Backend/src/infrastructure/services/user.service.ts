@@ -1,3 +1,4 @@
+import { PaginatedRequest } from '@application/dto/common/paginated.request';
 import { IUserService } from '@application/interfaces';
 import { IUserRepository } from '@application/persistence';
 import { User } from '@domain/entities/identity/user';
@@ -9,6 +10,14 @@ export class UserService implements IUserService {
 
   constructor({ userRepository }: Dependencies) {
     this.userRepository = userRepository;
+  }
+
+  async listUsers(info: PaginatedRequest): Promise<User[]> {
+    const index: number = parseInt(info.pageIndex as string);
+    const size: number = parseInt(info.pageSize as string);
+
+    const users: User[] = await this.userRepository.find({}, index, size);
+    return users;
   }
 
   async getFollowers(_id: string): Promise<User[]> {

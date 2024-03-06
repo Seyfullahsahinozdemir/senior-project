@@ -11,7 +11,7 @@ import { otpGenerate } from './otp.service';
 import { emailSend } from '@infrastructure/email/email.service';
 import { VerifyOtpDTO } from '@application/dto/auth/verify.otp';
 import { OtpTargetEnum } from '@application/enums/otp.target.enum';
-import { PaginatedRequest } from '@application/dto/common/paginated.request';
+import { NotFoundException } from '@application/exceptions';
 
 export class AuthService implements IAuthService {
   public readonly userRepository: IUserRepository;
@@ -26,19 +26,11 @@ export class AuthService implements IAuthService {
     this.currentUserId = null;
   }
 
-  async listUsers(info: PaginatedRequest): Promise<User[]> {
-    const index: number = parseInt(info.pageIndex as string);
-    const size: number = parseInt(info.pageSize as string);
-
-    const users: User[] = await this.userRepository.find({}, index, size);
-    return users;
-  }
-
   async resetPassword(_id: string): Promise<boolean> {
     const user = await this.userRepository.findOne(_id);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     const otpData = otpGenerate();
@@ -55,7 +47,7 @@ export class AuthService implements IAuthService {
       emailSend(user.email, 'Reset Password', emailText);
       return true;
     }
-    return false;
+    throw new Error('An error occurred while otp process.');
   }
 
   async verifyForResetPassword(info: VerifyOtpDTO, password: string): Promise<boolean> {
@@ -88,11 +80,11 @@ export class AuthService implements IAuthService {
   async getMyProfile(_id: string): Promise<User> {
     const user = await this.userRepository.findOne(_id);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found.');
     }
 
     if (!user.deletedAt) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found.');
     }
 
     user.password = '';
@@ -142,12 +134,12 @@ export class AuthService implements IAuthService {
     if (!user) {
       user = await this.userRepository.findByEmailAsync(info.usernameOrEmail);
       if (!user) {
-        throw new Error('User not found.');
+        throw new NotFoundException('User not found.');
       }
     }
 
     if (!bcrypt.compareSync(info.password, user.password)) {
-      throw new Error('User not found.');
+      throw new NotFoundException('User not found');
     }
 
     const otpData = otpGenerate();
@@ -174,7 +166,6 @@ export class AuthService implements IAuthService {
     if (user) {
       throw new Error('User already exist.');
     }
-
     user = await this.userRepository.findByEmailAsync(info.email);
 
     if (user) {

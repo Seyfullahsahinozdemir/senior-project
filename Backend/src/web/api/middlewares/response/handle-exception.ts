@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import * as Exceptions from '@application/exceptions';
 import { Dependencies } from '@web/crosscutting/container';
+import CustomResponse from '@application/interfaces/custom.response';
 
 type ExceptionResponse = {
   detail?: string; // A human-readable explanation specific to this occurrence of the problem.
@@ -13,7 +14,6 @@ type ExceptionResponse = {
 export function makeHandleException({ logger }: Pick<Dependencies, 'logger'>) {
   return function handler(error: Error, request: Request, response: Response, _: NextFunction) {
     let exception: ExceptionResponse | null = null;
-
     switch (error.constructor) {
       case Exceptions.NotFoundException:
         exception = notFoundExceptionResponse(error);
@@ -22,15 +22,25 @@ export function makeHandleException({ logger }: Pick<Dependencies, 'logger'>) {
         exception = validationExceptionResponse(error as Exceptions.ValidationException);
         break;
       default:
-        exception = internalServerException();
+        exception = internalServerException(error);
     }
 
     logger.error({
       detail: `Handling exception`,
       message: error.message,
     });
+    const customResponse = new CustomResponse(exception, exception.detail);
 
-    return response.status(exception.status).json(exception);
+    switch (exception.status) {
+      case 404:
+        return customResponse.error404(response);
+      case 400:
+        return customResponse.error400(response);
+      case 500:
+        return customResponse.error500(response);
+      default:
+        return customResponse.error500(response);
+    }
   };
 }
 
@@ -43,8 +53,9 @@ function notFoundExceptionResponse({ message }: Exceptions.NotFoundException): E
   };
 }
 
-function internalServerException(): ExceptionResponse {
+function internalServerException({ message }: any): ExceptionResponse {
   return {
+    ...(message && { detail: message }),
     status: 500,
     title: 'An error occurred while processing your request',
     type: 'https://tools.ietf.org/html/rfc7231#section-6.6.1',

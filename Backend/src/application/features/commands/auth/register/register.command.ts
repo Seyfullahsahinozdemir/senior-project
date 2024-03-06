@@ -11,7 +11,7 @@ export type RegisterCommandRequest = Readonly<{
   password: string;
 }>;
 
-export function makeRegisterCommand({ authService }: Pick<Dependencies, 'authService' | 'userRepository'>) {
+export function makeRegisterCommand({ authService }: Pick<Dependencies, 'authService'>) {
   return async function registerCommand(command: RegisterCommandRequest, res: Response) {
     await validate(command);
     const result = await authService.register({
@@ -21,6 +21,9 @@ export function makeRegisterCommand({ authService }: Pick<Dependencies, 'authSer
       username: command.username,
       password: command.password,
     });
+    if (!result) {
+      return new CustomResponse(null, 'Check fields.').created(res);
+    }
     return new CustomResponse(result, 'User created successful').created(res);
   };
 }

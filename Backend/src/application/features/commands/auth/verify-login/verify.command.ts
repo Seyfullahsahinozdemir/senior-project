@@ -17,8 +17,8 @@ export function makeVerifyForLoginCommand({ authService }: Pick<Dependencies, 'a
     });
 
     res
-      .cookie('refreshToken', result.refreshToken, { httpOnly: true, sameSite: 'strict' })
-      .header('Authorization', result.accessToken);
+      .header('Authorization', result.accessToken)
+      .cookie('refreshToken', result.refreshToken, { httpOnly: true, sameSite: 'strict' });
 
     return new CustomResponse({ user: result.user }, 'Login successful').success(res);
   };

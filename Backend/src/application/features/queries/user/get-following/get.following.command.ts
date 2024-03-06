@@ -1,5 +1,5 @@
 import { Dependencies } from '@infrastructure/di';
-import { validate } from './get.users.command.validator';
+import { validate } from './get.following.command.validator';
 import { Response } from 'express';
 import CustomResponse from '@application/interfaces/custom.response';
 
