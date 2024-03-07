@@ -1,13 +1,12 @@
 import { IAuthService, ITokenService } from '@application/interfaces';
 import CustomResponse from '@application/interfaces/custom.response';
-import { Dependencies } from '@infrastructure/di';
 import { Request, Response, NextFunction } from 'express';
 
 export class AuthenticationMiddleware {
   public readonly tokenService: ITokenService;
   public readonly authService: IAuthService;
 
-  constructor({ tokenService, authService }: Dependencies) {
+  constructor({ tokenService, authService }: { tokenService: ITokenService; authService: IAuthService }) {
     this.tokenService = tokenService;
     this.authService = authService;
   }
