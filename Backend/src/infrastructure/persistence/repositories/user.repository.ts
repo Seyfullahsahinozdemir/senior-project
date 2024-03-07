@@ -10,7 +10,6 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 
   async findByUsernameAsync(username: string): Promise<User> {
     const result = await this._collection.findOne({ username: username });
-
     return result as unknown as User;
   }
 

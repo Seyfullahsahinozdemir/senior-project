@@ -3,12 +3,11 @@ import { PaginatedRequest } from '@application/dto/common/paginated.request';
 import { ICategoryService } from '@application/interfaces/services/ICategoryService';
 import { ICategoryRepository } from '@application/persistence';
 import { Category } from '@domain/entities';
-import { Dependencies } from '@infrastructure/di';
 
 export class CategoryService implements ICategoryService {
   public readonly categoryRepository: ICategoryRepository;
 
-  constructor({ categoryRepository }: Dependencies) {
+  constructor({ categoryRepository }: { categoryRepository: ICategoryRepository }) {
     this.categoryRepository = categoryRepository;
   }
 

@@ -5,13 +5,12 @@ import { ITokenService } from '@application/interfaces';
 import { IAuthService } from '@application/interfaces/services/authentication/IAuth';
 import { IOtpRepository, IUserRepository } from '@application/persistence';
 import { User } from '@domain/entities/identity/user';
-import { Dependencies } from '@infrastructure/di';
 import * as bcrypt from 'bcrypt';
 import { otpGenerate } from './otp.service';
 import { emailSend } from '@infrastructure/email/email.service';
 import { VerifyOtpDTO } from '@application/dto/auth/verify.otp';
 import { OtpTargetEnum } from '@application/enums/otp.target.enum';
-import { NotFoundException } from '@application/exceptions';
+import { NotFoundException, ValidationException } from '@application/exceptions';
 
 export class AuthService implements IAuthService {
   public readonly userRepository: IUserRepository;
@@ -19,7 +18,15 @@ export class AuthService implements IAuthService {
   public readonly otpRepository: IOtpRepository;
   public currentUserId: string | null;
 
-  constructor({ tokenService, userRepository, otpRepository }: Dependencies) {
+  constructor({
+    tokenService,
+    userRepository,
+    otpRepository,
+  }: {
+    tokenService: ITokenService;
+    userRepository: IUserRepository;
+    otpRepository: IOtpRepository;
+  }) {
     this.userRepository = userRepository;
     this.tokenService = tokenService;
     this.otpRepository = otpRepository;
@@ -45,36 +52,40 @@ export class AuthService implements IAuthService {
 
     if (otp) {
       emailSend(user.email, 'Reset Password', emailText);
+
       return true;
     }
     throw new Error('An error occurred while otp process.');
   }
 
   async verifyForResetPassword(info: VerifyOtpDTO, password: string): Promise<boolean> {
+    const user = await this.userRepository.find({ email: info.email, deletedAt: null });
+
+    if (user.length == 0) {
+      throw new NotFoundException('User not found');
+    }
+
     const codes = await this.otpRepository.find({
       target: OtpTargetEnum.RESETPASSWORD,
       email: info.email,
     });
-    if (codes.length > 0) {
-      codes.sort((a, b) =>
-        Date.parse(a.expirationDate.toString()) > Date.parse(b.expirationDate.toString()) ? -1 : 1,
-      );
+    if (codes.length <= 0) {
+      throw new NotFoundException('Not found any otp code for specified user');
     }
 
-    if (info.otpCode == codes[0].otp && Date.parse(codes[0].expirationDate.toString()) > new Date().getTime()) {
+    codes.sort((a, b) => (Date.parse(a.expirationDate.toString()) > Date.parse(b.expirationDate.toString()) ? -1 : 1));
+
+    if (info.otpCode === codes[0].otp && Date.parse(codes[0].expirationDate.toString()) > new Date().getTime()) {
       await this.otpRepository.deleteMany({ email: info.email, target: OtpTargetEnum.RESETPASSWORD });
 
-      const user = await this.userRepository.find({ email: info.email, deletedAt: null });
-      if (user.length > 0) {
-        const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(password, salt);
-        user[0].password = hash;
-        user[0].update(user[0]._id?.toString() as string);
-        this.userRepository.update(user[0]._id?.toString() as string, user[0]);
-        return true;
-      }
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(password, salt);
+      user[0].password = hash;
+      user[0].update(user[0]._id?.toString() as string);
+      this.userRepository.update(user[0]._id?.toString() as string, user[0]);
+      return true;
     }
-    return false;
+    throw new ValidationException('Wrong otp code');
   }
 
   async getMyProfile(_id: string): Promise<User> {

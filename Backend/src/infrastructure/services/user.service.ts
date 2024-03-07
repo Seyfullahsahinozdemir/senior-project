@@ -2,13 +2,13 @@ import { PaginatedRequest } from '@application/dto/common/paginated.request';
 import { IUserService } from '@application/interfaces';
 import { IUserRepository } from '@application/persistence';
 import { User } from '@domain/entities/identity/user';
-import { Dependencies } from '@infrastructure/di';
 import { ObjectId } from 'mongodb';
+import { isValidObjectId } from 'mongoose';
 
 export class UserService implements IUserService {
   public readonly userRepository: IUserRepository;
 
-  constructor({ userRepository }: Dependencies) {
+  constructor({ userRepository }: { userRepository: IUserRepository }) {
     this.userRepository = userRepository;
   }
 
@@ -50,6 +50,10 @@ export class UserService implements IUserService {
   }
 
   async follow(currentUserId: string, targetUserId: string): Promise<boolean> {
+    if (!isValidObjectId(currentUserId) || !isValidObjectId(targetUserId)) {
+      throw new Error('Invalid user ID format');
+    }
+
     if (currentUserId == targetUserId) {
       throw new Error('Users ids same.');
     }
@@ -78,6 +82,9 @@ export class UserService implements IUserService {
   }
 
   async unFollow(currentUserId: string, targetUserId: string): Promise<boolean> {
+    if (!isValidObjectId(currentUserId) || !isValidObjectId(targetUserId)) {
+      throw new Error('Invalid user ID format');
+    }
     // Get the current user and the target user
     const currentUser: User = await this.userRepository.findOne(currentUserId);
     const targetUser: User = await this.userRepository.findOne(targetUserId);
