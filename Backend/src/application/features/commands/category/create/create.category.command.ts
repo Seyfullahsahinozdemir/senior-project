@@ -9,10 +9,16 @@ export type CreateCommandRequest = Readonly<{
   description: any;
 }>;
 
-export function makeCreateCommand({ categoryService }: Pick<Dependencies, 'categoryService'>) {
+export function makeCreateCommand({
+  categoryService,
+  authService,
+}: Pick<Dependencies, 'categoryService' | 'authService'>) {
   return async function createCommand(command: CreateCommandRequest, res: Response) {
     await validate(command);
-    const category = await categoryService.createCategory(command as RequestCategoryDTO);
+    const category = await categoryService.createCategory(
+      command as RequestCategoryDTO,
+      authService.currentUserId as string,
+    );
     return new CustomResponse(category, 'Category created successful').created(res);
   };
 }

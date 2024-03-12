@@ -7,10 +7,13 @@ export type DeleteCommandRequest = Readonly<{
   _id: string;
 }>;
 
-export function makeDeleteCommand({ categoryService }: Pick<Dependencies, 'categoryService'>) {
+export function makeDeleteCommand({
+  categoryService,
+  authService,
+}: Pick<Dependencies, 'categoryService' | 'authService'>) {
   return async function deleteCommand(command: DeleteCommandRequest, res: Response) {
     await validate(command);
-    await categoryService.deleteCategory(command._id);
+    await categoryService.deleteCategory(command._id, authService.currentUserId as string);
     return new CustomResponse(null, 'Category deleted successful').success(res);
   };
 }

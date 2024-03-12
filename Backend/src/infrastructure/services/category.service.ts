@@ -19,8 +19,8 @@ export class CategoryService implements ICategoryService {
     return categories;
   }
 
-  async updateCategory(request: RequestCategoryDTO): Promise<boolean> {
-    const categoryId = request._id; // Assuming you have an 'id' property in your RequestCategoryDTO
+  async updateCategory(request: RequestCategoryDTO, currentUserId: string): Promise<boolean> {
+    const categoryId = request._id;
 
     const existingCategory = await this.categoryRepository.findOne(categoryId as string);
 
@@ -28,27 +28,28 @@ export class CategoryService implements ICategoryService {
       throw new Error('Category not found');
     }
 
-    // Update the existing category with the new information
-    const updatedCategory = request;
+    existingCategory.name = request.name ? request.name : existingCategory.name;
+    existingCategory.description = request.description ? request.description : existingCategory.description;
+    existingCategory.update(currentUserId);
 
-    updatedCategory._id = existingCategory._id?.toString();
-
-    await this.categoryRepository.update(categoryId as string, updatedCategory as Category);
+    await this.categoryRepository.update(categoryId as string, existingCategory);
     return true;
   }
 
-  async createCategory(request: RequestCategoryDTO): Promise<Category> {
+  async createCategory(request: RequestCategoryDTO, currentUserId: string): Promise<Category> {
     const newCategory = new Category(request.name as string, request.description);
+    newCategory.create(currentUserId);
     const createdCategory = await this.categoryRepository.create(newCategory);
     return createdCategory;
   }
 
-  async deleteCategory(id: string): Promise<boolean> {
+  async deleteCategory(id: string, currentUserId: string): Promise<boolean> {
     const deletedCategory = await this.categoryRepository.delete(id);
-
     if (!deletedCategory) {
       throw new Error('Category not found');
     }
+
+    deletedCategory.delete(currentUserId);
 
     return true;
   }
