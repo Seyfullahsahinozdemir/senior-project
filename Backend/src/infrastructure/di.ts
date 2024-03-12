@@ -7,22 +7,29 @@ import { UserRepository } from './persistence/repositories/user.repository';
 import { AuthService } from './auth/auth.service';
 import { TokenService } from './auth/token.service';
 import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
-import { ICategoryRepository, IOtpRepository } from '@application/persistence';
+import { ICategoryRepository, IItemRepository, IOtpRepository } from '@application/persistence';
 import { OtpRepository } from './persistence/repositories/otp.repository';
-import { CategoryService, UserService } from './services';
-import { CategoryRepository } from './persistence';
+import { CategoryService, ImageService, UserService } from './services';
+import { CategoryRepository, ImageRepository, ItemRepository } from './persistence';
+import { IImageRepository } from '@application/persistence/IImageRepository';
 
 export type Dependencies = {
   db: mongoose.Connection;
   logger: Interfaces.ILogger;
+
   userRepository: IUserRepository;
   categoryRepository: ICategoryRepository;
-  tokenService: Interfaces.ITokenService;
-  authService: Interfaces.IAuthService;
-  authenticationMiddleware: AuthenticationMiddleware;
   otpRepository: IOtpRepository;
+  imageRepository: IImageRepository;
+  itemRepository: IItemRepository;
+
   userService: Interfaces.IUserService;
   categoryService: Interfaces.ICategoryService;
+  tokenService: Interfaces.ITokenService;
+  authService: Interfaces.IAuthService;
+  imageService: Interfaces.IImageService;
+
+  authenticationMiddleware: AuthenticationMiddleware;
 };
 
 export function makeInfrastructure(): { [dependency in keyof Dependencies]: Resolver<Dependencies[dependency]> } {
@@ -44,13 +51,19 @@ export function makeInfrastructure(): { [dependency in keyof Dependencies]: Reso
   return {
     db: asValue(db),
     logger: asValue(logger),
+
     userRepository: asClass(UserRepository).singleton(),
     categoryRepository: asClass(CategoryRepository).singleton(),
-    tokenService: asClass(TokenService).singleton(),
-    authService: asClass(AuthService).singleton(),
-    authenticationMiddleware: asClass(AuthenticationMiddleware).singleton(),
     otpRepository: asClass(OtpRepository).singleton(),
+    imageRepository: asClass(ImageRepository).singleton(),
+    itemRepository: asClass(ItemRepository).singleton(),
+
     userService: asClass(UserService).singleton(),
     categoryService: asClass(CategoryService).singleton(),
+    tokenService: asClass(TokenService).singleton(),
+    authService: asClass(AuthService).singleton(),
+    imageService: asClass(ImageService).singleton(),
+
+    authenticationMiddleware: asClass(AuthenticationMiddleware).singleton(),
   };
 }
