@@ -12,6 +12,7 @@ import { OtpRepository } from './persistence/repositories/otp.repository';
 import { CategoryService, ImageService, UserService } from './services';
 import { CategoryRepository, ImageRepository, ItemRepository } from './persistence';
 import { IImageRepository } from '@application/persistence/IImageRepository';
+import { ItemService } from './services/item.service';
 
 export type Dependencies = {
   db: mongoose.Connection;
@@ -28,6 +29,7 @@ export type Dependencies = {
   tokenService: Interfaces.ITokenService;
   authService: Interfaces.IAuthService;
   imageService: Interfaces.IImageService;
+  itemService: Interfaces.IItemService;
 
   authenticationMiddleware: AuthenticationMiddleware;
 };
@@ -63,6 +65,7 @@ export function makeInfrastructure(): { [dependency in keyof Dependencies]: Reso
     tokenService: asClass(TokenService).singleton(),
     authService: asClass(AuthService).singleton(),
     imageService: asClass(ImageService).singleton(),
+    itemService: asClass(ItemService).singleton(),
 
     authenticationMiddleware: asClass(AuthenticationMiddleware).singleton(),
   };

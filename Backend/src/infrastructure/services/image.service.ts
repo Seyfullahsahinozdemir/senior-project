@@ -3,6 +3,7 @@ import sharp from 'sharp';
 import { NotFoundException } from '@application/exceptions';
 import * as fs from 'fs';
 import * as promises from 'fs/promises';
+import * as path from 'path';
 
 export class ImageService implements IImageService {
   private uploadDir = './uploads';
@@ -13,11 +14,7 @@ export class ImageService implements IImageService {
     }
   }
 
-  async uploadImage(file: Express.Multer.File): Promise<boolean> {
-    if (!file) {
-      throw new NotFoundException('No image provided');
-    }
-
+  async uploadImage(file: Express.Multer.File): Promise<string> {
     const uniqueFileName = await this.generateUniqueFileName(file.originalname);
     const uploadedImagePath = `${this.uploadDir}/${uniqueFileName}`;
 
@@ -33,8 +30,9 @@ export class ImageService implements IImageService {
     });
 
     await this.processImageAndSave(uploadedImagePath);
+    const fileNameWithoutExtension = path.parse(uniqueFileName).name;
 
-    return true;
+    return fileNameWithoutExtension;
   }
 
   async deleteImage(filename: string): Promise<void> {
