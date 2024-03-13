@@ -20,6 +20,6 @@ export function makeVerifyForLoginCommand({ authService }: Pick<Dependencies, 'a
       .header('Authorization', result.accessToken)
       .cookie('refreshToken', result.refreshToken, { httpOnly: true, sameSite: 'strict' });
 
-    return new CustomResponse({ user: result.user }, 'Login successful').success(res);
+    return new CustomResponse(null, 'Login successful').success(res);
   };
 }

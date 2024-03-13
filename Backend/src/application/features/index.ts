@@ -10,10 +10,14 @@ import { makeGetFollowersCommand } from './queries/user/get-followers';
 import { makeGetFollowingCommand } from './queries/user/get-following';
 import { makeFollowCommand } from './commands/user/follow';
 import { makeUnFollowCommand } from './commands/user/unFollow';
-import { makeCreateCommand } from './commands/category/create';
 import { makeUpdateCommand } from './commands/category/update';
-import { makeDeleteCommand } from './commands/category/delete';
-import { makeGetCategoriesCommand } from './queries/category/get';
+import { makeCreateCommand as createCategoryCommand } from './commands/category/create';
+import { makeDeleteCommand as deleteCategoryCommand } from './commands/category/delete';
+import { makeCreateCommand as createItemCommand } from './commands/item/create';
+import { makeGetItemsCommand as getItemsCommand } from './queries/item/get';
+import { makeDeleteCommand as deleteItemCommand } from './commands/item/delete';
+import { makeGetCategoriesCommand as getCategoriesCommand } from './queries/category/get';
+import { makeUploadCommand } from './commands/item/upload';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -48,12 +52,25 @@ export function makeUser(dependencies: Dependencies) {
 export function makeCategory(dependencies: Dependencies) {
   return {
     commands: {
-      create: makeCreateCommand(dependencies),
+      create: createCategoryCommand(dependencies),
       update: makeUpdateCommand(dependencies),
-      delete: makeDeleteCommand(dependencies),
+      delete: deleteCategoryCommand(dependencies),
     },
     queries: {
-      get: makeGetCategoriesCommand(dependencies),
+      get: getCategoriesCommand(dependencies),
+    },
+  };
+}
+
+export function makeItem(dependencies: Dependencies) {
+  return {
+    commands: {
+      create: createItemCommand(dependencies),
+      delete: deleteItemCommand(dependencies),
+      upload: makeUploadCommand(dependencies),
+    },
+    queries: {
+      get: getItemsCommand(dependencies),
     },
   };
 }
