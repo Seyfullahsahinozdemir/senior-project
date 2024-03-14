@@ -13,9 +13,8 @@ export abstract class AuditableEntity extends BaseEntity implements IAuditableEn
 
   constructor() {
     super();
-    const currentDate = new Date();
-    this.createdAt = currentDate;
-    this.updatedAt = currentDate;
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
   }
 
   create(userId: string): AuditableEntity {
@@ -25,15 +24,13 @@ export abstract class AuditableEntity extends BaseEntity implements IAuditableEn
   }
 
   update(userId: string): AuditableEntity {
-    const currentDate = new Date();
-    this.updatedAt = currentDate;
+    this.updatedAt = new Date();
     this.updatedBy = userId;
     return this;
   }
 
   delete(userId: string): AuditableEntity {
-    const currentDate = new Date();
-    this.deletedAt = currentDate;
+    this.deletedAt = new Date();
     this.deletedBy = userId;
     return this;
   }

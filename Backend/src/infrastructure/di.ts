@@ -7,10 +7,10 @@ import { UserRepository } from './persistence/repositories/user.repository';
 import { AuthService } from './auth/auth.service';
 import { TokenService } from './auth/token.service';
 import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
-import { ICategoryRepository, IItemRepository, IOtpRepository } from '@application/persistence';
+import { ICategoryRepository, IItemRepository, IOtpRepository, IPostRepository } from '@application/persistence';
 import { OtpRepository } from './persistence/repositories/otp.repository';
-import { CategoryService, ImageService, UserService } from './services';
-import { CategoryRepository, ImageRepository, ItemRepository } from './persistence';
+import { CategoryService, ImageService, PostService, UserService } from './services';
+import { CategoryRepository, ImageRepository, ItemRepository, PostRepository } from './persistence';
 import { IImageRepository } from '@application/persistence/IImageRepository';
 import { ItemService } from './services/item.service';
 
@@ -23,6 +23,7 @@ export type Dependencies = {
   otpRepository: IOtpRepository;
   imageRepository: IImageRepository;
   itemRepository: IItemRepository;
+  postRepository: IPostRepository;
 
   userService: Interfaces.IUserService;
   categoryService: Interfaces.ICategoryService;
@@ -30,6 +31,7 @@ export type Dependencies = {
   authService: Interfaces.IAuthService;
   imageService: Interfaces.IImageService;
   itemService: Interfaces.IItemService;
+  postService: Interfaces.IPostService;
 
   authenticationMiddleware: AuthenticationMiddleware;
 };
@@ -59,6 +61,7 @@ export function makeInfrastructure(): { [dependency in keyof Dependencies]: Reso
     otpRepository: asClass(OtpRepository).singleton(),
     imageRepository: asClass(ImageRepository).singleton(),
     itemRepository: asClass(ItemRepository).singleton(),
+    postRepository: asClass(PostRepository).singleton(),
 
     userService: asClass(UserService).singleton(),
     categoryService: asClass(CategoryService).singleton(),
@@ -66,6 +69,7 @@ export function makeInfrastructure(): { [dependency in keyof Dependencies]: Reso
     authService: asClass(AuthService).singleton(),
     imageService: asClass(ImageService).singleton(),
     itemService: asClass(ItemService).singleton(),
+    postService: asClass(PostService).singleton(),
 
     authenticationMiddleware: asClass(AuthenticationMiddleware).singleton(),
   };

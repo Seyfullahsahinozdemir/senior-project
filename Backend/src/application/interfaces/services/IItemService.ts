@@ -1,5 +1,5 @@
 import { PaginatedRequest } from '@application/dto/common/paginated.request';
-import { RequestItemDTO } from '@application/dto/item/request.category';
+import { RequestItemDTO } from '@application/dto/item/request.item';
 import { Item } from '@domain/entities';
 
 export interface IItemService {

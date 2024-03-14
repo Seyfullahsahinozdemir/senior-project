@@ -12,16 +12,6 @@ export async function validate(command: CreateCommandRequest) {
       subCategories: Yup.array()
         .of(Yup.string().transform((value) => (value === '' ? null : value)))
         .nullable(),
-      image: Yup.mixed()
-        .test('fileFormat', 'Invalid file format', function (value) {
-          if (!value) {
-            return true; // No file provided is also valid, assuming it's optional
-          }
-          const file = value as Express.Multer.File;
-          const allowedFormats = ['image/jpeg', 'image/png'];
-          return allowedFormats.includes(file.mimetype);
-        })
-        .required('Image is required') as Yup.MixedSchema<Express.Multer.File>,
     });
 
     await schema.validate(command, { abortEarly: false, strict: true });
