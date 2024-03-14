@@ -54,20 +54,18 @@ export abstract class BaseRepository<T extends OptionalId<Document>> implements 
     return result?.value as T;
   }
 
-  async find(query: any, index: number, size: number): Promise<T[]> {
-    if (index && size) {
-      const result = await this._collection
-        .find(query)
-        .skip(index * size)
-        .limit(size)
-        .toArray();
+  async find(query: any, index: number, size: number, sort?: any): Promise<T[]> {
+    let cursor = this._collection.find(query);
 
-      return result as T[];
+    if (sort) {
+      cursor = cursor.sort(sort);
     }
 
-    const result = await this._collection.find(query).toArray();
+    if (index && size) {
+      cursor = cursor.skip(index * size).limit(size);
+    }
 
-    return result as T[];
+    return cursor.toArray() as Promise<T[]>;
   }
 
   async findOne(id: string): Promise<T> {

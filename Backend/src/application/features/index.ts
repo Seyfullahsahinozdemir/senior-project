@@ -18,6 +18,16 @@ import { makeGetItemsCommand as getItemsCommand } from './queries/item/get';
 import { makeDeleteCommand as deleteItemCommand } from './commands/item/delete';
 import { makeGetCategoriesCommand as getCategoriesCommand } from './queries/category/get';
 import { makeUploadCommand } from './commands/item/upload';
+import { makeCreatePostCommand } from './commands/post/create';
+import { makeDeletePostCommand } from './commands/post/delete';
+import { makeLikePostCommand } from './commands/post/like';
+import { makeUnlikePostCommand } from './commands/post/unlike';
+import { makeGetPostsCommand } from './queries/post/get';
+import { makeCreateCommentCommand } from './commands/comment/create';
+import { makeDeleteCommentCommand } from './commands/comment/delete';
+import { makeLikeCommentCommand } from './commands/comment/like';
+import { makeUnlikeCommentCommand } from './commands/comment/unlike';
+import { makeGetCommentsCommand } from './queries/comment/get';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -71,6 +81,34 @@ export function makeItem(dependencies: Dependencies) {
     },
     queries: {
       get: getItemsCommand(dependencies),
+    },
+  };
+}
+
+export function makePost(dependencies: Dependencies) {
+  return {
+    commands: {
+      create: makeCreatePostCommand(dependencies),
+      delete: makeDeletePostCommand(dependencies),
+      like: makeLikePostCommand(dependencies),
+      unlike: makeUnlikePostCommand(dependencies),
+    },
+    queries: {
+      get: makeGetPostsCommand(dependencies),
+    },
+  };
+}
+
+export function makeComment(dependencies: Dependencies) {
+  return {
+    commands: {
+      create: makeCreateCommentCommand(dependencies),
+      delete: makeDeleteCommentCommand(dependencies),
+      like: makeLikeCommentCommand(dependencies),
+      unlike: makeUnlikeCommentCommand(dependencies),
+    },
+    queries: {
+      get: makeGetCommentsCommand(dependencies),
     },
   };
 }
