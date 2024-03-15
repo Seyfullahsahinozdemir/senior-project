@@ -5,17 +5,27 @@ import { LikeCommentPostDTO } from '@application/dto/post/like.comment.post';
 import { RequestPostDTO } from '@application/dto/post/request.post';
 import { NotFoundException, ValidationException } from '@application/exceptions';
 import { IPostService, IUserService } from '@application/interfaces';
-import { IPostRepository } from '@application/persistence';
+import { IItemRepository, IPostRepository } from '@application/persistence';
 import { Post } from '@domain/entities';
 import { Comment } from '@domain/entities/comment';
 
 export class PostService implements IPostService {
   public readonly postRepository: IPostRepository;
   public readonly userService: IUserService;
+  public readonly itemRepository: IItemRepository;
 
-  constructor({ postRepository, userService }: { postRepository: IPostRepository; userService: IUserService }) {
+  constructor({
+    postRepository,
+    userService,
+    itemRepository,
+  }: {
+    postRepository: IPostRepository;
+    userService: IUserService;
+    itemRepository: IItemRepository;
+  }) {
     this.postRepository = postRepository;
     this.userService = userService;
+    this.itemRepository = itemRepository;
   }
 
   async getComments(request: PaginatedRequest, postId: string): Promise<Comment[]> {
