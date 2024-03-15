@@ -13,6 +13,8 @@ import { CategoryService, ImageService, PostService, UserService } from './servi
 import { CategoryRepository, ImageRepository, ItemRepository, PostRepository } from './persistence';
 import { IImageRepository } from '@application/persistence/IImageRepository';
 import { ItemService } from './services/item.service';
+import { ISearchService } from '@application/interfaces/services/search/ISearchService';
+import { SearchService } from './search/search.service';
 
 export type Dependencies = {
   db: mongoose.Connection;
@@ -32,6 +34,7 @@ export type Dependencies = {
   imageService: Interfaces.IImageService;
   itemService: Interfaces.IItemService;
   postService: Interfaces.IPostService;
+  searchService: ISearchService;
 
   authenticationMiddleware: AuthenticationMiddleware;
 };
@@ -70,6 +73,7 @@ export function makeInfrastructure(): { [dependency in keyof Dependencies]: Reso
     imageService: asClass(ImageService).singleton(),
     itemService: asClass(ItemService).singleton(),
     postService: asClass(PostService).singleton(),
+    searchService: asClass(SearchService).singleton(),
 
     authenticationMiddleware: asClass(AuthenticationMiddleware).singleton(),
   };

@@ -14,8 +14,8 @@ export function makeApp(dependencies: Dependencies) {
   app.use(controllers.authController({ dependencies, router: express.Router() }));
   app.use(controllers.userController({ dependencies, router: express.Router() }));
   app.use(controllers.categoryController({ dependencies, router: express.Router() }));
-  app.use(controllers.itemController({ dependencies, router: express.Router(), upload: upload }));
-  app.use(controllers.postController({ dependencies, router: express.Router() }));
+  app.use(controllers.itemController({ dependencies, router: express.Router(), upload }));
+  app.use(controllers.postController({ dependencies, router: express.Router(), upload }));
 
   middlewares.onResponse({ app, dependencies });
 

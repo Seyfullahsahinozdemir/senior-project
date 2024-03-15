@@ -28,6 +28,7 @@ import { makeDeleteCommentCommand } from './commands/comment/delete';
 import { makeLikeCommentCommand } from './commands/comment/like';
 import { makeUnlikeCommentCommand } from './commands/comment/unlike';
 import { makeGetCommentsCommand } from './queries/comment/get';
+import { makeGetCommand } from './queries/search/get/get.command';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -109,6 +110,15 @@ export function makeComment(dependencies: Dependencies) {
     },
     queries: {
       get: makeGetCommentsCommand(dependencies),
+    },
+  };
+}
+
+export function makeSearch(dependencies: Dependencies) {
+  return {
+    commands: {},
+    queries: {
+      get: makeGetCommand(dependencies),
     },
   };
 }

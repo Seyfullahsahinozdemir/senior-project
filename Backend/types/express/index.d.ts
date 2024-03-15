@@ -18,6 +18,7 @@ declare global {
     interface ProcessEnv {
       ADMIN_EMAIL: string;
       ADMIN_PASSWORD: string;
+      SEARCH_SERVICE_URL: string;
     }
   }
 }
