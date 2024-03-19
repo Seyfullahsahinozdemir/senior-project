@@ -44,12 +44,13 @@ export function makeHandleException({ logger }: Pick<Dependencies, 'logger'>) {
   };
 }
 
-function notFoundExceptionResponse({ message }: Exceptions.NotFoundException): ExceptionResponse {
+function notFoundExceptionResponse({ message }: any): ExceptionResponse {
   return {
     ...(message && { detail: message }),
     status: 404,
     title: 'The specified resource was not found',
     type: 'https://tools.ietf.org/html/rfc7231#section-6.5.4',
+    errors: message,
   };
 }
 
@@ -58,6 +59,7 @@ function internalServerException({ message }: any): ExceptionResponse {
     ...(message && { detail: message }),
     status: 500,
     title: 'An error occurred while processing your request',
+    errors: message,
     type: 'https://tools.ietf.org/html/rfc7231#section-6.6.1',
   };
 }
