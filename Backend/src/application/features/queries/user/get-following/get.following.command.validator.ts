@@ -7,7 +7,6 @@ export async function validate(command: GetFollowingCommandRequest) {
     const schema: Yup.ObjectSchema<GetFollowingCommandRequest> = Yup.object().shape({
       pageIndex: Yup.string().min(0).nullable(),
       pageSize: Yup.string().min(0).nullable(),
-      _id: Yup.string().required(),
     });
 
     await schema.validate(command, { abortEarly: false, strict: true });

@@ -133,5 +133,18 @@ export function postController({
     },
   );
 
+  router.post(
+    '/api/v1/post/get',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function getPosts(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.post.queries.get(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
   return router;
 }

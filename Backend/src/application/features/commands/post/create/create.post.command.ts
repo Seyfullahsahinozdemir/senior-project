@@ -12,7 +12,6 @@ export type CreatePostCommandRequest = Readonly<{
 export function makeCreatePostCommand({
   postService,
   itemRepository,
-  authService,
 }: Pick<Dependencies, 'postService' | 'itemRepository' | 'authService'>) {
   return async function createPostCommand(command: CreatePostCommandRequest, res: Response) {
     await validate(command);
@@ -24,13 +23,10 @@ export function makeCreatePostCommand({
       }
     }
 
-    const post = await postService.createPost(
-      {
-        content: command.content,
-        items: command.items,
-      },
-      authService.currentUserId as string,
-    );
+    const post = await postService.createPost({
+      content: command.content,
+      items: command.items,
+    });
 
     return new CustomResponse(post, 'Post created successfully').created(res);
   };

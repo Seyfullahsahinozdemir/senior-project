@@ -7,18 +7,12 @@ export type LikeCommentCommandRequest = Readonly<{
   commentId: string;
 }>;
 
-export function makeLikeCommentCommand({
-  postService,
-  authService,
-}: Pick<Dependencies, 'postService' | 'authService'>) {
+export function makeLikeCommentCommand({ postService }: Pick<Dependencies, 'postService'>) {
   return async function likeCommentCommand(command: LikeCommentCommandRequest, res: Response) {
-    await postService.likeComment(
-      {
-        postId: command.postId,
-        commentId: command.commentId,
-      },
-      authService.currentUserId as string,
-    );
+    await postService.likeComment({
+      postId: command.postId,
+      commentId: command.commentId,
+    });
     return new CustomResponse(null, 'Comment liked successfully').success(res);
   };
 }

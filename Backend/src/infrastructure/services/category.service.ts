@@ -1,14 +1,23 @@
 import { RequestCategoryDTO } from '@application/dto/category/request.category';
 import { PaginatedRequest } from '@application/dto/common/paginated.request';
+import { IAuthService } from '@application/interfaces';
 import { ICategoryService } from '@application/interfaces/services/ICategoryService';
 import { ICategoryRepository } from '@application/persistence';
 import { Category } from '@domain/entities';
 
 export class CategoryService implements ICategoryService {
   public readonly categoryRepository: ICategoryRepository;
+  private readonly authService: IAuthService;
 
-  constructor({ categoryRepository }: { categoryRepository: ICategoryRepository }) {
+  constructor({
+    categoryRepository,
+    authService,
+  }: {
+    categoryRepository: ICategoryRepository;
+    authService: IAuthService;
+  }) {
     this.categoryRepository = categoryRepository;
+    this.authService = authService;
   }
 
   async getCategories(request: PaginatedRequest): Promise<Category[]> {
@@ -19,7 +28,7 @@ export class CategoryService implements ICategoryService {
     return categories;
   }
 
-  async updateCategory(request: RequestCategoryDTO, currentUserId: string): Promise<boolean> {
+  async updateCategory(request: RequestCategoryDTO): Promise<boolean> {
     const categoryId = request._id;
 
     const existingCategory = await this.categoryRepository.findOne(categoryId as string);
@@ -30,26 +39,26 @@ export class CategoryService implements ICategoryService {
 
     existingCategory.name = request.name ? request.name : existingCategory.name;
     existingCategory.description = request.description ? request.description : existingCategory.description;
-    existingCategory.update(currentUserId);
+    existingCategory.updateEntity(this.authService.currentUserId as string);
 
     await this.categoryRepository.update(categoryId as string, existingCategory);
     return true;
   }
 
-  async createCategory(request: RequestCategoryDTO, currentUserId: string): Promise<Category> {
+  async createCategory(request: RequestCategoryDTO): Promise<Category> {
     const newCategory = new Category(request.name as string, request.description);
-    newCategory.create(currentUserId);
+    newCategory.createEntity(this.authService.currentUserId as string);
     const createdCategory = await this.categoryRepository.create(newCategory);
     return createdCategory;
   }
 
-  async deleteCategory(id: string, currentUserId: string): Promise<boolean> {
+  async deleteCategory(id: string): Promise<boolean> {
     const deletedCategory = await this.categoryRepository.delete(id);
     if (!deletedCategory) {
       throw new Error('Category not found');
     }
 
-    deletedCategory.delete(currentUserId);
+    deletedCategory.deleteEntity(this.authService.currentUserId as string);
 
     return true;
   }

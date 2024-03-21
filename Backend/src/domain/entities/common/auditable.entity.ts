@@ -17,19 +17,19 @@ export abstract class AuditableEntity extends BaseEntity implements IAuditableEn
     this.updatedAt = new Date();
   }
 
-  create(userId: string): AuditableEntity {
+  createEntity(userId: string): AuditableEntity {
     this.createdBy = userId;
     this.updatedBy = userId;
     return this;
   }
 
-  update(userId: string): AuditableEntity {
+  updateEntity(userId: string): AuditableEntity {
     this.updatedAt = new Date();
     this.updatedBy = userId;
     return this;
   }
 
-  delete(userId: string): AuditableEntity {
+  deleteEntity(userId: string): AuditableEntity {
     this.deletedAt = new Date();
     this.deletedBy = userId;
     return this;

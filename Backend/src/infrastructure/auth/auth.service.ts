@@ -81,7 +81,7 @@ export class AuthService implements IAuthService {
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(password, salt);
       user[0].password = hash;
-      user[0].update(user[0]._id?.toString() as string);
+      user[0].updateEntity(user[0]._id?.toString() as string);
       this.userRepository.update(user[0]._id?.toString() as string, user[0]);
       return true;
     }
@@ -193,7 +193,7 @@ export class AuthService implements IAuthService {
     if (!entity) {
       throw new Error('Error occurred while register.');
     }
-    user.create(entity._id?.toString() as string);
+    user.createEntity(entity._id?.toString() as string);
     await this.userRepository.update(entity._id?.toString() as string, user);
     return { _id: entity._id?.toString() as string };
   }

@@ -19,6 +19,11 @@ declare global {
       ADMIN_EMAIL: string;
       ADMIN_PASSWORD: string;
       SEARCH_SERVICE_URL: string;
+      CLIENT_ID: string;
+      CLIENT_SECRET: string;
+      REDIRECT_URI: string;
+      REFRESH_TOKEN: string;
+      STORAGE_URL: string;
     }
   }
 }

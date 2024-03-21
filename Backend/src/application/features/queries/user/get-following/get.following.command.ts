@@ -6,13 +6,12 @@ import CustomResponse from '@application/interfaces/custom.response';
 export type GetFollowingCommandRequest = Readonly<{
   pageIndex: any;
   pageSize: any;
-  _id: string;
 }>;
 
 export function makeGetFollowingCommand({ userService }: Pick<Dependencies, 'userService'>) {
   return async function getFollowingCommand(command: GetFollowingCommandRequest, res: Response) {
     await validate(command);
-    const result = await userService.getFollowing(command._id);
+    const result = await userService.getFollowing();
     return new CustomResponse({ users: result }, 'success').success(res);
   };
 }
