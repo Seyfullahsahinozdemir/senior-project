@@ -7,18 +7,12 @@ export type CreateCommentCommandRequest = Readonly<{
   content: string;
 }>;
 
-export function makeCreateCommentCommand({
-  postService,
-  authService,
-}: Pick<Dependencies, 'postService' | 'authService'>) {
+export function makeCreateCommentCommand({ postService }: Pick<Dependencies, 'postService'>) {
   return async function createCommentCommand(command: CreateCommentCommandRequest, res: Response) {
-    const post = await postService.createComment(
-      {
-        postId: command.postId,
-        content: command.content,
-      },
-      authService.currentUserId as string,
-    );
+    const post = await postService.createComment({
+      postId: command.postId,
+      content: command.content,
+    });
     return new CustomResponse(post, 'Comment created successfully').success(res);
   };
 }

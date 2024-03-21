@@ -17,7 +17,6 @@ import { makeCreateCommand as createItemCommand } from './commands/item/create';
 import { makeGetItemsCommand as getItemsCommand } from './queries/item/get';
 import { makeDeleteCommand as deleteItemCommand } from './commands/item/delete';
 import { makeGetCategoriesCommand as getCategoriesCommand } from './queries/category/get';
-import { makeUploadCommand } from './commands/item/upload';
 import { makeCreatePostCommand } from './commands/post/create';
 import { makeDeletePostCommand } from './commands/post/delete';
 import { makeLikePostCommand } from './commands/post/like';
@@ -29,6 +28,9 @@ import { makeLikeCommentCommand } from './commands/comment/like';
 import { makeUnlikeCommentCommand } from './commands/comment/unlike';
 import { makeGetCommentsCommand } from './queries/comment/get';
 import { makeGetCommand } from './queries/search/get/get.command';
+import { makeUpdateCommand as updateUserCommand } from './commands/user/update';
+import { makeGetUsersByUsernameCommand } from './queries/user/list-users-by-username';
+import { makeUploadCommand } from './commands/image/upload';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -50,10 +52,12 @@ export function makeUser(dependencies: Dependencies) {
     commands: {
       follow: makeFollowCommand(dependencies),
       unFollow: makeUnFollowCommand(dependencies),
+      update: updateUserCommand(dependencies),
     },
     queries: {
       getProfile: makeGetProfileCommand(dependencies),
       getUsers: makeGetUsersCommand(dependencies),
+      getUsersByUsername: makeGetUsersByUsernameCommand(dependencies),
       getFollowers: makeGetFollowersCommand(dependencies),
       getFollowing: makeGetFollowingCommand(dependencies),
     },
@@ -78,7 +82,6 @@ export function makeItem(dependencies: Dependencies) {
     commands: {
       create: createItemCommand(dependencies),
       delete: deleteItemCommand(dependencies),
-      upload: makeUploadCommand(dependencies),
     },
     queries: {
       get: getItemsCommand(dependencies),
@@ -120,5 +123,14 @@ export function makeSearch(dependencies: Dependencies) {
     queries: {
       get: makeGetCommand(dependencies),
     },
+  };
+}
+
+export function makeImage(dependencies: Dependencies) {
+  return {
+    commands: {
+      upload: makeUploadCommand(dependencies),
+    },
+    queries: {},
   };
 }

@@ -16,10 +16,9 @@ export type CreateCommandRequest = Readonly<{
 
 export function makeCreateCommand({
   itemService,
-  authService,
   categoryRepository,
   imageRepository,
-}: Pick<Dependencies, 'itemService' | 'authService' | 'categoryRepository' | 'imageRepository'>) {
+}: Pick<Dependencies, 'itemService' | 'categoryRepository' | 'imageRepository'>) {
   return async function createCommand(command: CreateCommandRequest, res: Response) {
     await validate(command);
 
@@ -33,17 +32,14 @@ export function makeCreateCommand({
       throw new NotFoundException('Image not found');
     }
 
-    const item = await itemService.createItem(
-      {
-        urlName: command.urlName,
-        description: command.description,
-        title: command.title,
-        topCategory: command.topCategory,
-        subCategories: command.subCategories,
-        image: { filename: command.image.filename, mimetype: command.image.mimetype },
-      },
-      authService.currentUserId as string,
-    );
+    const item = await itemService.createItem({
+      urlName: command.urlName,
+      description: command.description,
+      title: command.title,
+      topCategory: command.topCategory,
+      subCategories: command.subCategories,
+      image: { filename: command.image.filename, mimetype: command.image.mimetype },
+    });
     return new CustomResponse(item, 'Item created successful').created(res);
   };
 }

@@ -51,12 +51,11 @@ const Verify = () => {
               isAdmin: response.data.isAdmin,
             })
           );
-          console.log(response.data.isAdmin);
-          // if (response.data.isAdmin) {
-          //   router.push("/admin/dashboard");
-          // } else {
-          //   router.push("/movies");
-          // }
+          if (response.data.isAdmin) {
+            router.push("/admin/dashboard");
+          } else {
+            router.push("/movies");
+          }
         } else {
           toast.error(`Error: ${response.data.errors}`);
           return;

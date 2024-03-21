@@ -1,13 +1,6 @@
+import { Preferences } from '@application/dto/user/preferences.user';
 import { AuditableEntity } from '../common/auditable.entity';
 import { ObjectId } from 'mongodb';
-
-type Preferences = {
-  gender?: string;
-  phone?: string;
-  address?: string;
-  about?: string;
-  birthDate?: Date;
-};
 
 export class User extends AuditableEntity {
   firstName: string;
@@ -28,7 +21,7 @@ export class User extends AuditableEntity {
     this.email = email;
     this.password = password;
     this.isAdmin = false;
-    this.preferences = {};
+    this.preferences = { image: {} };
     this.following = [];
     this.followers = [];
   }

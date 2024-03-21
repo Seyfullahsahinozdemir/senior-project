@@ -45,7 +45,7 @@ export abstract class BaseRepository<T extends OptionalId<Document>> implements 
       { $set: item },
       { returnDocument: 'after' },
     );
-    return result?.value as T;
+    return result as T;
   }
 
   async delete(id: string): Promise<T> {

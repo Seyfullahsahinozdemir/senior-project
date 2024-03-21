@@ -1,5 +1,7 @@
 import { PaginatedRequest } from '@application/dto/common/paginated.request';
-import { IUserService } from '@application/interfaces';
+import { UpdateUserDTO } from '@application/dto/user/update.user';
+import { NotFoundException, ValidationException } from '@application/exceptions';
+import { IAuthService, IImageService, IUserService } from '@application/interfaces';
 import { IUserRepository } from '@application/persistence';
 import { User } from '@domain/entities/identity/user';
 import { ObjectId } from 'mongodb';
@@ -7,9 +9,69 @@ import { isValidObjectId } from 'mongoose';
 
 export class UserService implements IUserService {
   public readonly userRepository: IUserRepository;
+  public readonly authService: IAuthService;
+  public readonly imageService: IImageService;
 
-  constructor({ userRepository }: { userRepository: IUserRepository }) {
+  constructor({
+    userRepository,
+    authService,
+    imageService,
+  }: {
+    userRepository: IUserRepository;
+    authService: IAuthService;
+    imageService: IImageService;
+  }) {
     this.userRepository = userRepository;
+    this.authService = authService;
+    this.imageService = imageService;
+  }
+
+  async listUsersByUsername(info: PaginatedRequest): Promise<User[]> {
+    const index: number = parseInt(info.pageIndex as string);
+    const size: number = parseInt(info.pageSize as string);
+
+    const username: string = info.key as string;
+    const query = { username: { $regex: new RegExp(username, 'i') } };
+
+    const users: User[] = await this.userRepository.find(query, index, size);
+
+    const reducedUsers = users.map(({ _id, username, firstName, lastName, email, preferences }) => ({
+      _id,
+      username,
+      firstName,
+      lastName,
+      email,
+      preferences,
+    }));
+
+    return reducedUsers as User[];
+  }
+
+  async updateUser(info: UpdateUserDTO): Promise<User> {
+    const user: User = await this.userRepository.findOne(info._id);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user._id?.toString() !== info._id) {
+      throw new ValidationException('You can just update only your data.');
+    }
+
+    user.firstName = info.firstName ? info.firstName : user.firstName;
+    user.lastName = info.lastName ? info.lastName : user.lastName;
+
+    user.preferences.about ??= info.preferences.about;
+    user.preferences.address ??= info.preferences.address;
+    user.preferences.gender ??= info.preferences.gender;
+    user.preferences.phone ??= info.preferences.phone;
+
+    user.preferences.image.filename ??= info.preferences.image.filename;
+    user.preferences.image.mimetype ??= info.preferences.image.mimetype;
+    user.updatedAt = new Date();
+    user.updatedBy = this.authService.currentUserId as string;
+
+    return await this.userRepository.update(info._id, user);
   }
 
   async listUsers(info: PaginatedRequest): Promise<User[]> {
@@ -20,11 +82,11 @@ export class UserService implements IUserService {
     return users;
   }
 
-  async getFollowers(_id: string): Promise<User[]> {
-    const user: User = await this.userRepository.findOne(_id);
+  async getFollowers(): Promise<User[]> {
+    const user: User = await this.userRepository.findOne(this.authService.currentUserId as string);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     const followerIds = user.followers || [];
@@ -34,11 +96,11 @@ export class UserService implements IUserService {
     return followers;
   }
 
-  async getFollowing(_id: string): Promise<User[]> {
-    const user: User = await this.userRepository.findOne(_id);
+  async getFollowing(): Promise<User[]> {
+    const user: User = await this.userRepository.findOne(this.authService.currentUserId as string);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     const followingIds = user.following || [];
@@ -46,16 +108,25 @@ export class UserService implements IUserService {
     // Retrieve following users using the userRepository
     const following = await this.userRepository.find({ _id: { $in: followingIds } }, 0, 0);
 
-    return following;
+    const reducedFollowing = following.map(({ _id, username, firstName, lastName, email, preferences }) => ({
+      _id,
+      username,
+      firstName,
+      lastName,
+      email,
+      preferences,
+    }));
+
+    return reducedFollowing as User[];
   }
 
   async follow(currentUserId: string, targetUserId: string): Promise<boolean> {
     if (!isValidObjectId(currentUserId) || !isValidObjectId(targetUserId)) {
-      throw new Error('Invalid user ID format');
+      throw new ValidationException('Invalid user ID format');
     }
 
     if (currentUserId == targetUserId) {
-      throw new Error('Users ids same.');
+      throw new ValidationException('Users ids same.');
     }
 
     // Get the current user and the target user
@@ -63,7 +134,7 @@ export class UserService implements IUserService {
     const targetUser: User = await this.userRepository.findOne(targetUserId);
 
     if (!currentUser || !targetUser) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     // Add the target user's ID to the current user's following list
@@ -83,14 +154,14 @@ export class UserService implements IUserService {
 
   async unFollow(currentUserId: string, targetUserId: string): Promise<boolean> {
     if (!isValidObjectId(currentUserId) || !isValidObjectId(targetUserId)) {
-      throw new Error('Invalid user ID format');
+      throw new ValidationException('Invalid user ID format');
     }
     // Get the current user and the target user
     const currentUser: User = await this.userRepository.findOne(currentUserId);
     const targetUser: User = await this.userRepository.findOne(targetUserId);
 
     if (!currentUser || !targetUser) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     // Remove the target user's ID from the current user's following list

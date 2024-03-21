@@ -6,9 +6,9 @@ export type DeletePostCommandRequest = Readonly<{
   postId: string;
 }>;
 
-export function makeDeletePostCommand({ postService, authService }: Pick<Dependencies, 'postService' | 'authService'>) {
+export function makeDeletePostCommand({ postService }: Pick<Dependencies, 'postService'>) {
   return async function deletePostCommand(command: DeletePostCommandRequest, res: Response) {
-    await postService.deletePost(command.postId, authService.currentUserId as string);
+    await postService.deletePost(command.postId);
 
     return new CustomResponse(null, 'Post deleted successfully').success(res);
   };

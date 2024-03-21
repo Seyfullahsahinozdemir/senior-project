@@ -4,6 +4,6 @@ import { Item } from '@domain/entities';
 
 export interface IItemService {
   getItems(request: PaginatedRequest): Promise<Item[]>;
-  createItem(request: RequestItemDTO, currentUserId: string): Promise<Item>;
-  deleteItem(_id: string, currentUserId: string): Promise<void>;
+  createItem(request: RequestItemDTO): Promise<Item>;
+  deleteItem(_id: string): Promise<void>;
 }

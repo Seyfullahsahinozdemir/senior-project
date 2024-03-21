@@ -20,7 +20,7 @@ export function makeDeleteCommand({
       throw new Error('You cannot delete an item that does not belong to you.');
     }
     await imageService.deleteImage(item.image.filename);
-    await itemService.deleteItem(command._id, authService.currentUserId as string);
+    await itemService.deleteItem(command._id);
     return new CustomResponse(null, 'Item deleted successful').success(res);
   };
 }

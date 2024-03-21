@@ -10,13 +10,10 @@ export type UpdateCommandRequest = Readonly<{
   description: any;
 }>;
 
-export function makeUpdateCommand({
-  categoryService,
-  authService,
-}: Pick<Dependencies, 'categoryService' | 'authService'>) {
+export function makeUpdateCommand({ categoryService }: Pick<Dependencies, 'categoryService'>) {
   return async function updateCommand(command: UpdateCommandRequest, res: Response) {
     await validate(command);
-    await categoryService.updateCategory(command as RequestCategoryDTO, authService.currentUserId as string);
+    await categoryService.updateCategory(command as RequestCategoryDTO);
     return new CustomResponse(null, 'Category updated successful').success(res);
   };
 }
