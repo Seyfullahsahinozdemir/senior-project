@@ -24,7 +24,7 @@ export function makeHandleException({ logger }: Pick<Dependencies, 'logger'>) {
       default:
         exception = internalServerException(error);
     }
-
+    console.log(error);
     logger.error({
       detail: `Handling exception`,
       message: error.message,

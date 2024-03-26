@@ -48,14 +48,10 @@ export class UserService implements IUserService {
   }
 
   async updateUser(info: UpdateUserDTO): Promise<User> {
-    const user: User = await this.userRepository.findOne(info._id);
+    const user: User = await this.userRepository.findOne(this.authService.currentUserId as string);
 
     if (!user) {
       throw new NotFoundException('User not found');
-    }
-
-    if (user._id?.toString() !== info._id) {
-      throw new ValidationException('You can just update only your data.');
     }
 
     user.firstName = info.firstName ? info.firstName : user.firstName;
@@ -66,12 +62,15 @@ export class UserService implements IUserService {
     user.preferences.gender ??= info.preferences.gender;
     user.preferences.phone ??= info.preferences.phone;
 
-    user.preferences.image.filename ??= info.preferences.image.filename;
-    user.preferences.image.mimetype ??= info.preferences.image.mimetype;
+    if (info.preferences.image.filename !== '') {
+      user.preferences.image.filename = info.preferences.image.filename;
+      user.preferences.image.mimetype = info.preferences.image.mimetype;
+    }
+
     user.updatedAt = new Date();
     user.updatedBy = this.authService.currentUserId as string;
 
-    return await this.userRepository.update(info._id, user);
+    return await this.userRepository.update(this.authService.currentUserId as string, user);
   }
 
   async listUsers(info: PaginatedRequest): Promise<User[]> {

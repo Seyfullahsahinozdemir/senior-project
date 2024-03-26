@@ -146,5 +146,18 @@ export function postController({
     },
   );
 
+  router.post(
+    '/api/v1/post/get-posts-by-user-id',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function getPostsByUserId(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.post.queries.getPostByUserId(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
   return router;
 }

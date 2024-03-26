@@ -16,10 +16,10 @@ export function makeCreatePostCommand({
   return async function createPostCommand(command: CreatePostCommandRequest, res: Response) {
     await validate(command);
 
-    for (const filename of command.items) {
-      const existingItem = await itemRepository.find({ 'image.filename': filename });
-      if (existingItem.length === 0) {
-        throw new NotFoundException(`Item '${filename}' does not exist.`);
+    for (const id of command.items) {
+      const existingItem = await itemRepository.findOne(id);
+      if (!existingItem) {
+        throw new NotFoundException(`Item '${id}' does not exist.`);
       }
     }
 

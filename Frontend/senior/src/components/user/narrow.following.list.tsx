@@ -10,7 +10,7 @@ interface Props {
   selectedUser: string;
 }
 
-const FollowingList: React.FC<Props> = ({
+const NarrowFollowingListComponent: React.FC<Props> = ({
   followingList,
   onUserSelect,
   selectedUser,
@@ -20,10 +20,8 @@ const FollowingList: React.FC<Props> = ({
   const handleUserClick = (userId: string) => {
     router.push(`/user/${userId}`);
   };
-
   return (
-    <div className="bg-gray-200 p-4 w-64 h-screen overflow-y-auto">
-      <p className="text-lg font-semibold mb-4">Following List</p>
+    <div className="flex flex-wrap justify-center gap-4">
       {followingList &&
         followingList.map((user) => (
           <div
@@ -32,36 +30,37 @@ const FollowingList: React.FC<Props> = ({
               selectedUser === user._id ? "border-2 border-blue-500" : ""
             }`}
             onClick={() => onUserSelect(user._id)}
-            style={{ position: "relative" }}
           >
-            <div
-              className="cursor-pointer absolute top-0 right-0 p-2 transition duration-300 ease-in-out hover:bg-gray-300 rounded-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleUserClick(user._id);
-              }}
-            >
-              <FaHome className="h-6 w-6 text-gray-400" />
-            </div>
-
             {user.preferences && user.preferences.image && (
-              <div className="relative w-16 h-16 mr-4">
+              <div className="w-16 h-16 rounded-full overflow-hidden mr-4">
                 <Image
                   src={`${process.env.NEXT_PUBLIC_STORAGE_URL}${user.preferences.image.filename}`}
-                  layout="fill"
-                  objectFit="cover"
+                  width={100}
+                  height={100}
                   alt="profile pic"
-                  className="rounded-full"
+                  className="object-cover"
                 />
               </div>
             )}
-            <span className="text-sm">
-              {user.firstName} {user.lastName} (@{user.username})
-            </span>
+            <div>
+              <div
+                className="flex justify-end"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUserClick(user._id);
+                }}
+              >
+                <FaHome className="text-gray-400 w-8 h-8 p-1 transition duration-300 ease-in-out hover:bg-gray-300 rounded-full" />
+              </div>
+              <h2 className="text-lg font-semibold">
+                {user.firstName} {user.lastName}
+              </h2>
+              <p className="text-gray-600">@{user.username}</p>
+            </div>
           </div>
         ))}
     </div>
   );
 };
 
-export default FollowingList;
+export default NarrowFollowingListComponent;

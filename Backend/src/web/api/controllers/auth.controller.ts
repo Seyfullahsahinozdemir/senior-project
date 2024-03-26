@@ -69,7 +69,7 @@ export function authController({ dependencies, router }: { dependencies: Depende
     dependencies.authenticationMiddleware.authenticateForUser,
     async function getProfile(request: Request, response: Response, next: NextFunction) {
       try {
-        const result = await dependencies.auth.queries.getProfile({ _id: request.user.id }, response);
+        const result = await dependencies.auth.queries.getProfile(response);
         return result;
       } catch (error) {
         return next(error);

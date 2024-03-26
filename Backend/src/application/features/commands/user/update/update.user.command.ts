@@ -8,15 +8,16 @@ import { UpdateUserDTO } from '@application/dto/user/update.user';
 export function makeUpdateCommand({
   userService,
   imageRepository,
-}: Pick<Dependencies, 'userService' | 'imageRepository'>) {
+}: Pick<Dependencies, 'userService' | 'imageRepository' | 'userRepository' | 'authService'>) {
   return async function updateCommand(command: UpdateUserDTO, res: Response) {
     await validate(command);
 
-    const image = await imageRepository.find({ filename: command.preferences.image.filename });
-    if (!image) {
-      throw new NotFoundException('Image not found');
+    if (command.preferences.image.filename !== '') {
+      const image = await imageRepository.find({ fileId: command.preferences.image.filename });
+      if (!image) {
+        throw new NotFoundException('Image not found');
+      }
     }
-
     const user = await userService.updateUser(command);
 
     return new CustomResponse({ user }, 'success').success(res);

@@ -11,7 +11,7 @@ export type CreateCommandRequest = Readonly<{
   title: string;
   topCategory: string;
   subCategories: string[] | null;
-  image: { filename: string; mimetype: string };
+  image: { fileId: string; filename: string; mimetype: string };
 }>;
 
 export function makeCreateCommand({
@@ -27,8 +27,12 @@ export function makeCreateCommand({
       throw new NotFoundException('Given top-category not found');
     }
 
-    const image = await imageRepository.find({ filename: command.image.filename });
-    if (!image) {
+    let image;
+    image = await imageRepository.find({ fileId: command.image.fileId });
+    if (image.length === 0) {
+      image = await imageRepository.find({ filename: command.image.filename });
+    }
+    if (image.length === 0) {
       throw new NotFoundException('Image not found');
     }
 
@@ -38,7 +42,7 @@ export function makeCreateCommand({
       title: command.title,
       topCategory: command.topCategory,
       subCategories: command.subCategories,
-      image: { filename: command.image.filename, mimetype: command.image.mimetype },
+      image: { fileId: command.image.fileId, filename: command.image.filename, mimetype: command.image.mimetype },
     });
     return new CustomResponse(item, 'Item created successful').created(res);
   };

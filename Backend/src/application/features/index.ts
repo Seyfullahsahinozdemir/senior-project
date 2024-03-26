@@ -31,6 +31,7 @@ import { makeGetCommand } from './queries/search/get/get.command';
 import { makeUpdateCommand as updateUserCommand } from './commands/user/update';
 import { makeGetUsersByUsernameCommand } from './queries/user/list-users-by-username';
 import { makeUploadCommand } from './commands/image/upload';
+import { makeGetPostsByUserIdCommand } from './queries/post/get-by-user-id';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -99,6 +100,7 @@ export function makePost(dependencies: Dependencies) {
     },
     queries: {
       get: makeGetPostsCommand(dependencies),
+      getPostByUserId: makeGetPostsByUserIdCommand(dependencies),
     },
   };
 }

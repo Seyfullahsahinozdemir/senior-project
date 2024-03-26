@@ -6,7 +6,7 @@ export class Item extends AuditableEntity {
   title: string | null;
   topCategory: string;
   subCategories: string[] | null;
-  image: { filename: string; mimetype: string };
+  image: { fileId?: string; filename?: string; mimetype: string };
 
   constructor(
     urlName: string,
@@ -14,7 +14,7 @@ export class Item extends AuditableEntity {
     title: string | null,
     topCategory: string,
     subCategories: string[] | null,
-    image: { filename: string; mimetype: string },
+    image: { fileId?: string; filename?: string; mimetype: string },
   ) {
     super();
     this.urlName = urlName;

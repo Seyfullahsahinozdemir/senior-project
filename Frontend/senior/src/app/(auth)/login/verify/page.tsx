@@ -5,6 +5,8 @@ import { getDevUrl, loginVerifyEndpoint } from "@/network/endpoints";
 import { useAxiosWithoutAuthentication } from "@/helpers/without.auth.axios.hook";
 import { ICustomResponse } from "@/interfaces/ICustomResponse";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { authActions } from "@/slices/auth.slice";

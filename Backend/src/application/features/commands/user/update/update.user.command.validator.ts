@@ -5,7 +5,6 @@ import { UpdateUserDTO } from '@application/dto/user/update.user';
 export async function validate(command: UpdateUserDTO) {
   try {
     const schema = Yup.object().shape({
-      _id: Yup.string().required(),
       firstName: Yup.string().nullable(),
       lastName: Yup.string().nullable(),
     });
