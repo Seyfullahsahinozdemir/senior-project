@@ -1,8 +1,15 @@
 export type Post = {
   _id: string;
-  likes?: string[];
-  comments?: string[];
-  createdBy?: string;
   content?: string;
-  items?: any[];
+  createdAt?: string;
+  likeCount?: number;
+  commentCount?: number;
+  user?: {
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+    image?: { filename?: string };
+  };
+  items?: [image?: { filename?: string }];
+  comments?: string[];
 };

@@ -1,19 +1,24 @@
 import { Dependencies } from '@infrastructure/di';
 import { Response } from 'express';
 import CustomResponse from '@application/interfaces/custom.response';
-import { PaginatedRequest } from '@application/dto/common/paginated.request';
-import { validate } from './get.posts.command.validator';
+import { validate } from './get.posts.by.user.id.command.validator';
 import { NotFoundException } from '@application/exceptions';
 
-export function makeGetPostsCommand({
+export function makeGetPostsByUserIdCommand({
   postService,
   userRepository,
   imageService,
   itemRepository,
 }: Pick<Dependencies, 'postService' | 'userRepository' | 'imageService' | 'itemRepository'>) {
-  return async function getPostsCommand(command: PaginatedRequest, res: Response) {
+  return async function getPostsByUserIdCommand(
+    command: { pageIndex?: string; pageSize?: string; userId: string },
+    res: Response,
+  ) {
     await validate(command);
-    const posts = await postService.getPosts(command);
+    const posts = await postService.getPostsByUserId(
+      { pageIndex: command.pageIndex as string, pageSize: command.pageSize as string },
+      command.userId,
+    );
 
     const updatedPosts = [];
     for (const post of posts) {
@@ -53,6 +58,6 @@ export function makeGetPostsCommand({
       });
     }
 
-    return new CustomResponse(posts, 'Posts retrieved successfully').success(res);
+    return new CustomResponse(updatedPosts, 'Posts retrieved successfully').success(res);
   };
 }

@@ -81,7 +81,8 @@ export class AuthService implements IAuthService {
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(password, salt);
       user[0].password = hash;
-      user[0].updateEntity(user[0]._id?.toString() as string);
+      user[0].updatedAt = new Date();
+      user[0].updatedBy = user[0]._id?.toString();
       this.userRepository.update(user[0]._id?.toString() as string, user[0]);
       return true;
     }
@@ -94,7 +95,7 @@ export class AuthService implements IAuthService {
       throw new NotFoundException('User not found.');
     }
 
-    if (!user.deletedAt) {
+    if (user.deletedAt) {
       throw new NotFoundException('User not found.');
     }
 

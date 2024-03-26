@@ -4,6 +4,7 @@ export type User = {
   email: string;
   firstName: string;
   lastName: string;
+  createdAt: string;
   preferences: {
     gender?: string;
     phone?: string;
@@ -11,4 +12,22 @@ export type User = {
     about?: string;
     image?: { filename?: string; mimetype?: string };
   };
+  following?: [
+    {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      username: string;
+      email: string;
+    }
+  ];
+  followers?: [
+    {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      username: string;
+      email: string;
+    }
+  ];
 };

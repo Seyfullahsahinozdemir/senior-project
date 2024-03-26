@@ -2,11 +2,11 @@ import React from "react";
 import Image from "next/image";
 import { User } from "@/interfaces/User";
 
-const UserListItem = ({ user }: { user: User }) => {
+const NarrowUserListItem = ({ user }: { user: User }) => {
   return (
-    <li className="bg-white shadow-md p-4 my-4 flex items-center mx-auto w-80 rounded-lg cursor-pointer transition duration-300 ease-in-out hover:shadow-lg">
+    <li className="bg-white shadow-md p-1 my-2 flex items-center mx-auto w-48 rounded-lg cursor-pointer transition duration-300 ease-in-out hover:shadow-lg">
       {user.preferences && user.preferences.image && (
-        <div className="w-16 h-16 mr-4 overflow-hidden rounded-full">
+        <div className="w-14 h-14 mr-2 overflow-hidden rounded-full">
           <Image
             src={`${process.env.NEXT_PUBLIC_STORAGE_URL}${user.preferences.image.filename}`}
             width={100}
@@ -26,4 +26,4 @@ const UserListItem = ({ user }: { user: User }) => {
   );
 };
 
-export default UserListItem;
+export default NarrowUserListItem;

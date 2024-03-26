@@ -6,7 +6,7 @@ export class TokenService implements ITokenService {
   secretKey = 'Senior';
 
   generateToken(payload: TokenPayload): string {
-    return jsonwebtoken.sign(payload, this.secretKey, { expiresIn: '1d' });
+    return jsonwebtoken.sign(payload, this.secretKey, { expiresIn: '10d' });
   }
 
   generateRefreshToken(payload: TokenPayload): string {

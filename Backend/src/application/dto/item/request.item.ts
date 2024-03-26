@@ -5,5 +5,5 @@ export class RequestItemDTO {
   title: string;
   topCategory: string;
   subCategories: string[] | null;
-  image: { filename: string; mimetype: string };
+  image: { fileId: string; filename: string; mimetype: string };
 }

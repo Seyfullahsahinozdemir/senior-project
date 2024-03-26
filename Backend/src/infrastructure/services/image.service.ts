@@ -1,6 +1,6 @@
 import { IImageService } from '@application/interfaces/services/IImageService';
 import * as fs from 'fs';
-import { drive_v3, google } from 'googleapis';
+import { google } from 'googleapis';
 
 export class ImageService implements IImageService {
   // private uploadDir = './uploads';
@@ -19,7 +19,6 @@ export class ImageService implements IImageService {
 
   async uploadImage(file: Express.Multer.File): Promise<{ fileName: string; fileId: string }> {
     try {
-      console.log(process.env.STORAGE_URL);
       const response = await this.drive.files.create({
         requestBody: {
           name: file.originalname,
