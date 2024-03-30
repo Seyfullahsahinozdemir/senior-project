@@ -1,4 +1,4 @@
-export type Item = {
+export type GetItemsByCurrentUser = {
   _id: string;
   urlName: string;
   description?: string;
@@ -7,5 +7,11 @@ export type Item = {
   subCategories?: string[];
   image: { filename?: string; mimetype?: string; fileId?: string };
   createdAt: string;
-  createdBy: string;
+  createdBy: {
+    _id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 };

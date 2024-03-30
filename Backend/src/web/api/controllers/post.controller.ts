@@ -159,5 +159,18 @@ export function postController({
     },
   );
 
+  router.post(
+    '/api/v1/post/get-posts-by-current-user',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function getPostsByCurrentUser(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.post.queries.getPostByCurrentUser(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
   return router;
 }

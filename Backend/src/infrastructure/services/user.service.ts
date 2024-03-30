@@ -26,6 +26,20 @@ export class UserService implements IUserService {
     this.imageService = imageService;
   }
 
+  async getProfileByUser(_id: string): Promise<User> {
+    const user = await this.userRepository.findOne(_id);
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    if (user.deletedAt) {
+      throw new NotFoundException('User not found.');
+    }
+
+    user.password = '';
+    return user;
+  }
+
   async listUsersByUsername(info: PaginatedRequest): Promise<User[]> {
     const index: number = parseInt(info.pageIndex as string);
     const size: number = parseInt(info.pageSize as string);

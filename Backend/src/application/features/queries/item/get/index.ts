@@ -1,1 +1,1 @@
-export * from './get.item.command';
+export * from './get.items.by.current.user.command';

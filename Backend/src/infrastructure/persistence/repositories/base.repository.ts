@@ -51,7 +51,7 @@ export abstract class BaseRepository<T extends OptionalId<Document>> implements 
   async delete(id: string): Promise<T> {
     const objectId = new ObjectId(id);
     const result = await this._collection.findOneAndDelete({ _id: objectId });
-    return result?.value as T;
+    return result as T;
   }
 
   async find(query: any, index: number, size: number, sort?: any): Promise<T[]> {
@@ -61,7 +61,7 @@ export abstract class BaseRepository<T extends OptionalId<Document>> implements 
       cursor = cursor.sort(sort);
     }
 
-    if (index && size) {
+    if (index !== undefined && size !== undefined && index >= 0 && size >= 0) {
       cursor = cursor.skip(index * size).limit(size);
     }
 

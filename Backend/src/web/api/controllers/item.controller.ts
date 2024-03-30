@@ -28,17 +28,31 @@ export function itemController({ dependencies, router }: { dependencies: Depende
     },
   );
 
-  router.get('/api/v1/item/get', async function get(request: Request, response: Response, next: NextFunction) {
-    try {
-      const result = await dependencies.item.queries.get(
-        { pageIndex: request.query.pageIndex, pageSize: request.query.pageSize },
-        response,
-      );
-      return result;
-    } catch (error) {
-      return next(error);
-    }
-  });
+  router.post(
+    '/api/v1/item/get-items-by-current-user',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function get(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.item.queries.get(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/item/get-items-by-user-id',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function get(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.item.queries.getItemsByUserId(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
 
   return router;
 }

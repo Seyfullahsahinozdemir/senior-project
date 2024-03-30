@@ -9,4 +9,5 @@ export interface IUserService {
   listUsers(info: PaginatedRequest): Promise<User[]>;
   listUsersByUsername(info: PaginatedRequest): Promise<User[]>;
   updateUser(info: UpdateUserDTO): Promise<User>;
+  getProfileByUser(_id: string): Promise<User>;
 }

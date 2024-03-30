@@ -87,5 +87,18 @@ export function userController({ dependencies, router }: { dependencies: Depende
     },
   );
 
+  router.post(
+    '/api/v1/user/get-user-profile-by-user',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function getProfile(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.user.queries.getUserProfileByUser(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
   return router;
 }

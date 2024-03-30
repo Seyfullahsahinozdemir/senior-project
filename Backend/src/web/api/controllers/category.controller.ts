@@ -43,7 +43,7 @@ export function categoryController({ dependencies, router }: { dependencies: Dep
     },
   );
 
-  router.get('/api/v1/category', async function get(request: Request, response: Response, next: NextFunction) {
+  router.post('/api/v1/category/get', async function get(request: Request, response: Response, next: NextFunction) {
     try {
       const result = await dependencies.category.queries.get(
         { pageIndex: request.query.pageIndex, pageSize: request.query.pageSize },

@@ -1,5 +1,6 @@
 import { RequestCategoryDTO } from '@application/dto/category/request.category';
 import { PaginatedRequest } from '@application/dto/common/paginated.request';
+import { CategoryTypeEnum } from '@application/enums/category.type.enum';
 import { IAuthService } from '@application/interfaces';
 import { ICategoryService } from '@application/interfaces/services/ICategoryService';
 import { ICategoryRepository } from '@application/persistence';
@@ -24,7 +25,7 @@ export class CategoryService implements ICategoryService {
     const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
     const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
 
-    const categories = await this.categoryRepository.find({}, pageIndex, pageSize);
+    const categories = await this.categoryRepository.find({ description: CategoryTypeEnum.TOP }, pageIndex, pageSize);
     return categories;
   }
 

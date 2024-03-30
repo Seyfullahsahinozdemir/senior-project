@@ -22,8 +22,9 @@ import FollowingList from "@/components/user/following.list";
 import PostCardComponent from "@/components/post/post.card";
 import { GetPostsByUserIdType } from "@/interfaces/post/get.posts.by.user.id";
 import { useRouter } from "next/navigation";
-import NarrowUserListItem from "@/components/user/narrow.user.list.item";
-import NarrowFollowingListComponent from "@/components/user/narrow.following.list";
+import NarrowUserListItem from "@/components/user/simple.user.list.item";
+import NarrowFollowingListComponent from "@/components/user/simple.following.list";
+import SimplePostCardComponent from "@/components/post/simple.post.card.component";
 
 export default function HomePage() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -191,7 +192,7 @@ export default function HomePage() {
                 style={{ maxHeight: "calc(100vh - 4rem - 1rem)" }}
               >
                 {posts.map((post) => (
-                  <PostCardComponent key={post._id} post={post} />
+                  <SimplePostCardComponent key={post._id} post={post} />
                 ))}
               </div>
             </div>
@@ -252,7 +253,7 @@ export default function HomePage() {
             <div>
               <div className="bg-gray-200 p-4 h-full">
                 {posts.map((post) => (
-                  <PostCardComponent key={post._id} post={post} />
+                  <SimplePostCardComponent key={post._id} post={post} />
                 ))}
               </div>
             </div>

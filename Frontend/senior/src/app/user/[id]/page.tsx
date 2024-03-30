@@ -4,37 +4,27 @@ import React, { useEffect, useState } from "react";
 import NetworkManager from "@/network/network.manager";
 import {
   getDevUrl,
-  getProfileEndPoint,
-  resetPasswordEndpoint,
-  getPostsByCurrentUser,
-  getItemsByCurrentUser,
-  deletePost,
-  deleteItemEndPoint,
+  getItemsByUserId,
+  getPostsByUserId,
+  getUserProfileByUserEndPoint,
 } from "@/network/endpoints";
 import { useAxiosWithAuthentication } from "@/helpers/auth.axios.hook";
-import { useRouter } from "next/navigation";
-import { AiOutlineEdit } from "react-icons/ai";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { usePathname } from "next/navigation";
 
 import useFormattedDate from "@/helpers/useFormattedDate.hook";
 import useErrorHandling from "@/helpers/useErrorHandler.hook";
 import { User } from "@/interfaces/User";
-import EditProfileModal from "@/components/modal/edit.profile.modal";
 import { GetPostsByUserIdType } from "@/interfaces/post/get.posts.by.user.id";
 import { ICustomResponse } from "@/interfaces/ICustomResponse";
-import PostCardComponent from "@/components/post/post.card";
 import { GetItemsByCurrentUser } from "@/interfaces/item/get.items.by.current.user";
-import ItemCardComponent from "@/components/item/item.card";
-import AddItemModal from "@/components/modal/add.item.modal";
 
-const MyProfilePage = () => {
+import SimplePostCardComponent from "@/components/post/simple.post.card.component";
+import SimpleItemCardComponent from "@/components/item/simple.item.card";
+
+const UserProfilePage = () => {
   const [user, setUser] = useState<User>();
   const networkManager: NetworkManager = useAxiosWithAuthentication();
-  const [showEditModal, setEditShowModal] = useState(false);
-  const [showAddItemModal, setAddItemShowModal] = useState(false);
-
-  const router = useRouter();
   const { formatDate } = useFormattedDate();
   const { handleErrorResponse } = useErrorHandling();
   const [posts, setPosts] = useState<GetPostsByUserIdType[]>([]);
@@ -42,27 +32,32 @@ const MyProfilePage = () => {
   const [page, setPage] = useState(0);
   const [selectedButton, setSelectedButton] = useState<string>("posts");
 
+  const pathname = usePathname();
+  const userId = pathname.split("/").pop();
+
   useEffect(() => {
-    if (!showEditModal) {
-      networkManager
-        .post(getDevUrl(getProfileEndPoint), {})
-        .then((response) => {
-          if (response.success) {
-            setUser(response.data.user);
-          }
-        })
-        .catch((err) => {
-          handleErrorResponse(err);
-        });
-    }
+    networkManager
+      .post(getDevUrl(getUserProfileByUserEndPoint), { _id: userId })
+      .then((response) => {
+        if (response.success) {
+          setUser(response.data.user);
+        }
+      })
+      .catch((err) => {
+        handleErrorResponse(err);
+      });
     if (selectedButton == "posts") {
       loadPosts();
     }
-  }, [showEditModal, showAddItemModal]);
+  }, []);
 
   const loadMorePosts = () => {
     networkManager
-      .post(getDevUrl(getPostsByCurrentUser), { pageIndex: page, pageSize: 5 })
+      .post(getDevUrl(getPostsByUserId), {
+        pageIndex: page,
+        pageSize: 5,
+        userId: userId,
+      })
       .then((response: ICustomResponse) => {
         setPosts((prevPosts) => [...prevPosts, ...response.data]);
         setPage(page + 1);
@@ -71,9 +66,12 @@ const MyProfilePage = () => {
 
   const loadMoreItems = () => {
     networkManager
-      .post(getDevUrl(getItemsByCurrentUser), { pageIndex: page, pageSize: 5 })
+      .post(getDevUrl(getItemsByUserId), {
+        pageIndex: page,
+        pageSize: 5,
+        userId: userId,
+      })
       .then((response: ICustomResponse) => {
-        console.log(response);
         setItems((prevItems) => [...prevItems, ...response.data]);
         setPage(page + 1);
       });
@@ -83,9 +81,12 @@ const MyProfilePage = () => {
     setSelectedButton("items");
     setPosts([]);
     networkManager
-      .post(getDevUrl(getItemsByCurrentUser), { pageIndex: 0, pageSize: 5 })
+      .post(getDevUrl(getItemsByUserId), {
+        pageIndex: 0,
+        pageSize: 5,
+        userId: userId,
+      })
       .then((response: ICustomResponse) => {
-        console.log(response.data);
         setItems(response.data);
         setPage(1);
       });
@@ -95,98 +96,19 @@ const MyProfilePage = () => {
     setSelectedButton("posts");
     setItems([]);
     networkManager
-      .post(getDevUrl(getPostsByCurrentUser), {
+      .post(getDevUrl(getPostsByUserId), {
         pageIndex: 0,
         pageSize: 5,
+        userId: userId,
       })
       .then((response: ICustomResponse) => {
-        console.log("post page: ", page);
         setPosts(response.data);
         setPage(1);
       });
   };
 
-  const handleResetPasswordClick = async () => {
-    try {
-      const response = await networkManager.post(
-        getDevUrl(resetPasswordEndpoint),
-        {}
-      );
-
-      if (response.success) {
-        toast.success("Check your email for otp code");
-        setTimeout(() => {
-          router.push("/profile/verify");
-        }, 1200);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleRemovePost = async (post: GetPostsByUserIdType) => {
-    try {
-      const response: ICustomResponse = await networkManager.post(
-        getDevUrl(deletePost),
-        { postId: post._id }
-      );
-
-      if (response.success) {
-        toast.success(response.message);
-        loadPosts();
-      } else {
-        toast.error(`Error: ${response.data.errors}`);
-        return;
-      }
-    } catch (error) {
-      handleErrorResponse(error);
-    }
-  };
-
-  const handleRemoveItem = async (item: GetItemsByCurrentUser) => {
-    try {
-      const response: ICustomResponse = await networkManager.post(
-        getDevUrl(deleteItemEndPoint),
-        { _id: item._id }
-      );
-
-      if (response.success) {
-        toast.success(response.message);
-        loadPosts();
-      } else {
-        toast.error(`Error: ${response.data.errors}`);
-        return;
-      }
-    } catch (error) {
-      handleErrorResponse(error);
-    }
-  };
-
-  const handleAddNewPost = () => {
-    console.log("Post eklendi");
-  };
-
   return (
     <div>
-      {user && (
-        <EditProfileModal
-          show={showEditModal}
-          setShow={setEditShowModal}
-          info={user}
-          onUpdateUser={(updatedUser: User) => {
-            setUser(updatedUser);
-          }}
-        />
-      )}
-      {
-        <AddItemModal
-          show={showAddItemModal}
-          setShow={setAddItemShowModal}
-          onAddItem={() => {
-            loadItems();
-          }}
-        />
-      }
       <div className="container mx-auto my-5 p-5">
         <div className="md:flex no-wrap md:-mx-2 ">
           <div className="w-full md:w-3/12 md:mx-2">
@@ -239,12 +161,6 @@ const MyProfilePage = () => {
                 </span>
                 <span className="tracking-wide">About</span>
                 <div className="flex-grow" />
-                <AiOutlineEdit
-                  data-modal-target="edit-profile-modal"
-                  data-modal-toggle="edit-profile-modal"
-                  className="w-5 h-5 hover:text-blue-300 cursor-pointer"
-                  onClick={() => setEditShowModal(true)}
-                />
               </div>
               <div className="text-gray-700">
                 <div className="grid md:grid-cols-2 text-sm">
@@ -283,16 +199,6 @@ const MyProfilePage = () => {
                       </a>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2">
-                    <div className="px-4 py-2 font-semibold">Password</div>
-                    <button
-                      type="button"
-                      className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm w-2/3 ml-3"
-                      onClick={handleResetPasswordClick}
-                    >
-                      Reset Password
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -327,37 +233,11 @@ const MyProfilePage = () => {
                 </button>
               </div>
 
-              <div className="flex items-center flex-wrap gap-3 pt-4">
-                {selectedButton === "posts" ? (
-                  <button
-                    type="button"
-                    className="text-gray-900 border border-blue-300 focus:outline-none focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm w-1/4 ml-3 h-10 bg-white hover:bg-gray-100 ring-gray-200"
-                    onClick={handleAddNewPost}
-                  >
-                    Add New Post
-                  </button>
-                ) : (
-                  selectedButton === "items" && (
-                    <button
-                      type="button"
-                      className="text-gray-900 border border-blue-300 focus:outline-none focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm w-1/4 ml-3 h-10 bg-white hover:bg-gray-100 ring-gray-200"
-                      onClick={() => setAddItemShowModal(true)}
-                    >
-                      Add New Item
-                    </button>
-                  )
-                )}
-              </div>
-
               {selectedButton === "posts" ? (
                 <>
                   <div className="flex items-center justify-center flex-wrap gap-3 pt-4">
                     {posts?.map((post) => (
-                      <PostCardComponent
-                        key={post._id}
-                        post={post}
-                        handleRemovePost={handleRemovePost}
-                      />
+                      <SimplePostCardComponent key={post._id} post={post} />
                     ))}
                   </div>
                   <div className="flex justify-center mt-4">
@@ -374,11 +254,7 @@ const MyProfilePage = () => {
                   <>
                     <div className="flex items-center justify-center flex-wrap gap-3 pt-4">
                       {items.map((item, index) => (
-                        <ItemCardComponent
-                          key={index}
-                          item={item}
-                          handleRemoveItem={handleRemoveItem}
-                        />
+                        <SimpleItemCardComponent key={index} item={item} />
                       ))}
                     </div>
                     <div className="flex justify-center mt-4">
@@ -400,4 +276,4 @@ const MyProfilePage = () => {
   );
 };
 
-export default MyProfilePage;
+export default UserProfilePage;

@@ -1,25 +1,24 @@
 import { Dependencies } from '@infrastructure/di';
 import { Response } from 'express';
 import CustomResponse from '@application/interfaces/custom.response';
-import { validate } from './get.posts.by.user.id.command.validator';
+import { validate } from './get.posts.by.current.user.command.validator';
 import { NotFoundException } from '@application/exceptions';
 
-export function makeGetPostsByUserIdCommand({
+export function makeGetPostsByCurrentUserCommand({
   postService,
   userRepository,
   imageService,
   itemRepository,
-  authService,
-}: Pick<Dependencies, 'postService' | 'userRepository' | 'imageService' | 'itemRepository' | 'authService'>) {
+}: Pick<Dependencies, 'postService' | 'userRepository' | 'imageService' | 'itemRepository'>) {
   return async function getPostsByUserIdCommand(
     command: { pageIndex?: string; pageSize?: string; userId: string },
     res: Response,
   ) {
     await validate(command);
-    const posts = await postService.getPostsByUserId(
-      { pageIndex: command.pageIndex as string, pageSize: command.pageSize as string },
-      command.userId,
-    );
+    const posts = await postService.getPostsByCurrentUser({
+      pageIndex: command.pageIndex as string,
+      pageSize: command.pageSize as string,
+    });
 
     const updatedPosts = [];
     for (const post of posts) {
@@ -42,8 +41,6 @@ export function makeGetPostsByUserIdCommand({
         updatedItems.push({ image: { filename: fileId } });
       }
 
-      const liked = post.likes?.includes(authService.currentUserId as string);
-
       updatedPosts.push({
         _id: post._id,
         content: post.content,
@@ -58,7 +55,6 @@ export function makeGetPostsByUserIdCommand({
         },
         items: updatedItems,
         comments: post.comments,
-        liked: liked,
       });
     }
 

@@ -14,7 +14,7 @@ import { makeUpdateCommand } from './commands/category/update';
 import { makeCreateCommand as createCategoryCommand } from './commands/category/create';
 import { makeDeleteCommand as deleteCategoryCommand } from './commands/category/delete';
 import { makeCreateCommand as createItemCommand } from './commands/item/create';
-import { makeGetItemsCommand as getItemsCommand } from './queries/item/get';
+import { makeGetItemsByCurrentUserCommand as getItemsCommand } from './queries/item/get';
 import { makeDeleteCommand as deleteItemCommand } from './commands/item/delete';
 import { makeGetCategoriesCommand as getCategoriesCommand } from './queries/category/get';
 import { makeCreatePostCommand } from './commands/post/create';
@@ -32,6 +32,9 @@ import { makeUpdateCommand as updateUserCommand } from './commands/user/update';
 import { makeGetUsersByUsernameCommand } from './queries/user/list-users-by-username';
 import { makeUploadCommand } from './commands/image/upload';
 import { makeGetPostsByUserIdCommand } from './queries/post/get-by-user-id';
+import { makeGetPostsByCurrentUserCommand } from './queries/post/get-by-current-user';
+import { makeGetUserProfileByUserCommand } from './queries/user/get-user-profile-by-user';
+import { makeGetItemsByUserIdCommand } from './queries/item/get-items-by-user-id';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -56,11 +59,11 @@ export function makeUser(dependencies: Dependencies) {
       update: updateUserCommand(dependencies),
     },
     queries: {
-      getProfile: makeGetProfileCommand(dependencies),
       getUsers: makeGetUsersCommand(dependencies),
       getUsersByUsername: makeGetUsersByUsernameCommand(dependencies),
       getFollowers: makeGetFollowersCommand(dependencies),
       getFollowing: makeGetFollowingCommand(dependencies),
+      getUserProfileByUser: makeGetUserProfileByUserCommand(dependencies),
     },
   };
 }
@@ -86,6 +89,7 @@ export function makeItem(dependencies: Dependencies) {
     },
     queries: {
       get: getItemsCommand(dependencies),
+      getItemsByUserId: makeGetItemsByUserIdCommand(dependencies),
     },
   };
 }
@@ -101,6 +105,7 @@ export function makePost(dependencies: Dependencies) {
     queries: {
       get: makeGetPostsCommand(dependencies),
       getPostByUserId: makeGetPostsByUserIdCommand(dependencies),
+      getPostByCurrentUser: makeGetPostsByCurrentUserCommand(dependencies),
     },
   };
 }
