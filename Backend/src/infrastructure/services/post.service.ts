@@ -32,6 +32,17 @@ export class PostService implements IPostService {
     this.authService = authService;
   }
 
+  async getPostsByCurrentUser(request: PaginatedRequest): Promise<Post[]> {
+    const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
+    const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
+
+    const posts = await this.postRepository.find({ createdBy: this.authService.currentUserId }, pageIndex, pageSize, {
+      createdAt: -1,
+    });
+
+    return posts;
+  }
+
   async getPostsByUserId(request: PaginatedRequest, userId: string): Promise<Post[]> {
     const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
     const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
@@ -87,7 +98,6 @@ export class PostService implements IPostService {
     if (!deletedPost) {
       throw new NotFoundException('Post not found');
     }
-    deletedPost.deleteEntity(this.authService.currentUserId as string);
   }
 
   async likePost(_id: string): Promise<void> {
@@ -107,7 +117,7 @@ export class PostService implements IPostService {
     if (!post) {
       throw new NotFoundException('Post not found.');
     }
-    if (post.likes?.includes(this.authService.currentUserId as string)) {
+    if (!post.likes?.includes(this.authService.currentUserId as string)) {
       throw new ValidationException('No user post-like relation found.');
     }
     post.likes = post.likes?.filter((userId) => userId !== (this.authService.currentUserId as string));

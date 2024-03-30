@@ -13,6 +13,15 @@ export function makeGetCategoriesCommand({ categoryService }: Pick<Dependencies,
   return async function updateCommand(command: GetCategoriesCommandRequest, res: Response) {
     await validate(command);
     const categories = await categoryService.getCategories(command as PaginatedRequest);
-    return new CustomResponse(categories, 'success').success(res);
+
+    const updatedCategories = [];
+    for (const category of categories) {
+      updatedCategories.push({
+        _id: category._id,
+        name: category.name,
+      });
+    }
+
+    return new CustomResponse(updatedCategories, 'success').success(res);
   };
 }

@@ -15,10 +15,20 @@ export class ItemService implements IItemService {
     this.authService = authService;
   }
 
-  async getItems(request: PaginatedRequest): Promise<Item[]> {
+  async getItemsByUserId(request: PaginatedRequest, userId: string): Promise<Item[]> {
     const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
     const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
-    return await this.itemRepository.find({ createdBy: this.authService.currentUserId }, pageIndex, pageSize);
+    return await this.itemRepository.find({ createdBy: userId }, pageIndex, pageSize, {
+      createdAt: -1,
+    });
+  }
+
+  async getItemsByCurrentUser(request: PaginatedRequest): Promise<Item[]> {
+    const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
+    const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
+    return await this.itemRepository.find({ createdBy: this.authService.currentUserId }, pageIndex, pageSize, {
+      createdAt: -1,
+    });
   }
 
   async createItem(request: RequestItemDTO): Promise<Item> {
@@ -40,6 +50,5 @@ export class ItemService implements IItemService {
     if (!deletedCategory) {
       throw new NotFoundException('Item not found');
     }
-    deletedCategory.deleteEntity(this.authService.currentUserId as string);
   }
 }

@@ -2,7 +2,6 @@ import { Dependencies } from '@infrastructure/di';
 import { validate } from './delete.item.command.validator';
 import { Response } from 'express';
 import CustomResponse from '@application/interfaces/custom.response';
-import { MimetypeEnum } from '@application/enums/mimetype.enum';
 
 export type DeleteCommandRequest = Readonly<{
   _id: string;
@@ -12,8 +11,8 @@ export function makeDeleteCommand({
   itemService,
   authService,
   itemRepository,
-  imageService,
-}: Pick<Dependencies, 'itemService' | 'authService' | 'itemRepository' | 'imageService'>) {
+  imageRepository,
+}: Pick<Dependencies, 'itemService' | 'authService' | 'itemRepository' | 'imageRepository'>) {
   return async function deleteCommand(command: DeleteCommandRequest, res: Response) {
     await validate(command);
     const item = await itemRepository.findOne(command._id);
@@ -22,13 +21,20 @@ export function makeDeleteCommand({
     }
 
     if (item.image.fileId) {
-      await imageService.deleteImage(item.image.fileId);
+      // await imageService.deleteImage(item.image.fileId);
+      const image = await imageRepository.find({ fileId: item.image.fileId });
+      if (image.length === 1) {
+        await imageRepository.delete(image[0]._id?.toString() as string);
+      }
     } else {
       if (item.image.filename) {
-        const fileExtension = item.image.mimetype === MimetypeEnum.JPEG ? '.jpg' : '.png';
+        // const fileExtension = item.image.mimetype === MimetypeEnum.JPEG ? '.jpg' : '.png';
 
-        const fileId = await imageService.findFileIdByName(item.image.filename + fileExtension);
-        await imageService.deleteImage(fileId);
+        // const fileId = await imageService.findFileIdByName(item.image.filename + fileExtension);
+        // await imageService.deleteImage(fileId);
+        const image = await imageRepository.find({ filename: item.image.filename });
+
+        await imageRepository.delete(image[0]._id?.toString() as string);
       }
     }
 

@@ -12,4 +12,5 @@ export type GetPostsByUserIdType = {
   };
   items: [{ image: { filename: string } }];
   comments: any[];
+  liked: boolean;
 };
