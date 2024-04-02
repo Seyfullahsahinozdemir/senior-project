@@ -22,6 +22,14 @@ export const getPostsByCurrentUser = "/post/get-posts-by-current-user";
 export const deletePost = "/post/delete";
 export const likePostEndPoint = "/post/like";
 export const unLikePostEndPoint = "/post/unlike";
+export const getPostByIdEndPoint = "/post/get-post-by-id";
+
+// comment
+export const getCommentsEndPoint = "/post/comment/get";
+export const createCommentEndPoint = "/post/comment/create";
+export const deleteCommentEndPoint = "/post/comment/delete";
+export const likeCommentEndPoint = "/post/comment/like";
+export const unLikeCommentEndPoint = "/post/comment/unlike";
 
 // item
 export const getItemsByCurrentUser = "/item/get-items-by-current-user";

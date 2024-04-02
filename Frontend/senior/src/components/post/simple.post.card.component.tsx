@@ -20,6 +20,8 @@ const SimplePostCardComponent = ({ post }: { post: GetPostsByUserIdType }) => {
   const { handleErrorResponse } = useErrorHandling();
   const router = useRouter();
 
+  console.log(post);
+
   const handleLikeClick = async () => {
     try {
       console.log(liked);
@@ -34,7 +36,7 @@ const SimplePostCardComponent = ({ post }: { post: GetPostsByUserIdType }) => {
         if (response.success) {
           console.log(response.data);
           setLiked(false);
-          // post.likeCount = 0;
+          post.likeCount--;
         } else {
           toast.error(response.data.errors);
         }
@@ -49,7 +51,7 @@ const SimplePostCardComponent = ({ post }: { post: GetPostsByUserIdType }) => {
         if (response.success) {
           console.log(response.data);
           setLiked(true);
-          // post.likeCount = 1;
+          post.likeCount++;
         } else {
           toast.error(response.data.errors);
         }
