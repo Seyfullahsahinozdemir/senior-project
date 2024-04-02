@@ -59,6 +59,7 @@ export function makeGetPostsByUserIdCommand({
         items: updatedItems,
         comments: post.comments,
         liked: liked,
+        me: user._id?.toString() === (authService.currentUserId as string) ? true : false,
       });
     }
 

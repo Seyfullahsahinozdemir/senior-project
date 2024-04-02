@@ -73,4 +73,8 @@ export abstract class BaseRepository<T extends OptionalId<Document>> implements 
     const result = await this._collection.findOne({ _id: objectId });
     return result as T;
   }
+
+  async aggregate(pipeline: any[]): Promise<any[]> {
+    return this._collection.aggregate(pipeline).toArray();
+  }
 }

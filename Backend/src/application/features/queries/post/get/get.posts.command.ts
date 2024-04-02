@@ -53,6 +53,6 @@ export function makeGetPostsCommand({
       });
     }
 
-    return new CustomResponse(posts, 'Posts retrieved successfully').success(res);
+    return new CustomResponse(updatedPosts, 'Posts retrieved successfully').success(res);
   };
 }

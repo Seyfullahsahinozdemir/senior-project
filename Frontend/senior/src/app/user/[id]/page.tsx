@@ -21,6 +21,7 @@ import { GetItemsByCurrentUser } from "@/interfaces/item/get.items.by.current.us
 
 import SimplePostCardComponent from "@/components/post/simple.post.card.component";
 import SimpleItemCardComponent from "@/components/item/simple.item.card";
+import LoadMoreButton from "@/components/common/load.button";
 
 const UserProfilePage = () => {
   const [user, setUser] = useState<User>();
@@ -241,12 +242,7 @@ const UserProfilePage = () => {
                     ))}
                   </div>
                   <div className="flex justify-center mt-4">
-                    <button
-                      className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm px-6 py-2"
-                      onClick={loadMorePosts}
-                    >
-                      Load More
-                    </button>
+                    <LoadMoreButton onClick={loadMorePosts} />
                   </div>
                 </>
               ) : (

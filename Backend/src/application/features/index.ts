@@ -35,6 +35,7 @@ import { makeGetPostsByUserIdCommand } from './queries/post/get-by-user-id';
 import { makeGetPostsByCurrentUserCommand } from './queries/post/get-by-current-user';
 import { makeGetUserProfileByUserCommand } from './queries/user/get-user-profile-by-user';
 import { makeGetItemsByUserIdCommand } from './queries/item/get-items-by-user-id';
+import { makeGetPostByIdCommand } from './queries/post/get-by-id';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -104,6 +105,7 @@ export function makePost(dependencies: Dependencies) {
     },
     queries: {
       get: makeGetPostsCommand(dependencies),
+      getPostById: makeGetPostByIdCommand(dependencies),
       getPostByUserId: makeGetPostsByUserIdCommand(dependencies),
       getPostByCurrentUser: makeGetPostsByCurrentUserCommand(dependencies),
     },

@@ -8,6 +8,7 @@ import { IAuthService, IPostService, IUserService } from '@application/interface
 import { IItemRepository, IPostRepository } from '@application/persistence';
 import { Post } from '@domain/entities';
 import { Comment } from '@domain/entities/comment';
+import { ObjectId } from 'mongodb';
 
 export class PostService implements IPostService {
   public readonly postRepository: IPostRepository;
@@ -32,6 +33,31 @@ export class PostService implements IPostService {
     this.authService = authService;
   }
 
+  async getComments(request: PaginatedRequest, postId: string): Promise<Comment[]> {
+    const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
+    const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
+
+    const post = await this.postRepository.findOne(postId);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const pipeline = [
+      { $match: { _id: new ObjectId(postId) } },
+      { $project: { comments: 1 } },
+      { $unwind: '$comments' },
+      { $sort: { 'comments.createdAt': -1 } },
+      { $skip: pageIndex * pageSize },
+      { $limit: pageSize },
+      { $replaceRoot: { newRoot: '$comments' } },
+    ];
+
+    const paginatedComments = await this.postRepository.aggregate(pipeline);
+
+    return paginatedComments;
+  }
+
   async getPostsByCurrentUser(request: PaginatedRequest): Promise<Post[]> {
     const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
     const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
@@ -54,24 +80,6 @@ export class PostService implements IPostService {
     return posts;
   }
 
-  async getComments(request: PaginatedRequest, postId: string): Promise<Comment[]> {
-    const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
-    const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
-
-    const post = await this.postRepository.findOne(postId);
-
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
-    const comments = post.comments || [];
-    comments.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-
-    const startIndex = pageIndex * pageSize;
-    const paginatedComments = comments.slice(startIndex, startIndex + pageSize);
-
-    return paginatedComments;
-  }
-
   async getPosts(request: PaginatedRequest): Promise<Post[]> {
     const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
     const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
@@ -84,6 +92,12 @@ export class PostService implements IPostService {
     });
 
     return posts;
+  }
+
+  async getPostById(postId: string): Promise<Post> {
+    const post = await this.postRepository.findOne(postId);
+
+    return post;
   }
 
   async createPost(request: RequestPostDTO): Promise<Post> {
@@ -130,6 +144,7 @@ export class PostService implements IPostService {
       throw new NotFoundException('Post not found.');
     }
     const comment = new Comment(request.content, this.authService.currentUserId as string);
+    comment._id = new ObjectId();
     post.comments?.push(comment);
     return await this.postRepository.update(post._id?.toString() as string, post);
   }
@@ -146,6 +161,10 @@ export class PostService implements IPostService {
 
     if (index === -1) {
       throw new NotFoundException('No comment found.');
+    }
+
+    if (post.comments[index].createdBy != (this.authService.currentUserId as string)) {
+      throw new ValidationException('You cannot remove a comment that not belongs to you.');
     }
 
     post.comments.splice(index, 1);

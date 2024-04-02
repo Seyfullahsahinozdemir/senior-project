@@ -104,6 +104,19 @@ export function postController({
   );
 
   router.post(
+    '/api/v1/post/comment/get',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function getComments(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.comment.queries.get(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
+  router.post(
     '/api/v1/post/comment/unlike',
     dependencies.authenticationMiddleware.authenticateForUser,
     async function unlikeComment(request: Request, response: Response, next: NextFunction) {
@@ -139,6 +152,19 @@ export function postController({
     async function getPosts(request: Request, response: Response, next: NextFunction) {
       try {
         const result = await dependencies.post.queries.get(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/post/get-post-by-id',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function getPostById(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.post.queries.getPostById(request.body, response);
         return result;
       } catch (error) {
         return next(error);
