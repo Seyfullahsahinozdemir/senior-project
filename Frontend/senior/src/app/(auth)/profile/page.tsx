@@ -10,6 +10,7 @@ import {
   getItemsByCurrentUser,
   deletePost,
   deleteItemEndPoint,
+  getFavoriteItemsByCurrentUserEndPoint,
 } from "@/network/endpoints";
 import { useAxiosWithAuthentication } from "@/helpers/auth.axios.hook";
 import { useRouter } from "next/navigation";
@@ -41,6 +42,11 @@ const MyProfilePage = () => {
   const [items, setItems] = useState<GetItemsByCurrentUser[]>([]);
   const [page, setPage] = useState(0);
   const [selectedButton, setSelectedButton] = useState<string>("posts");
+  const [favoriteChecked, setFavoriteChecked] = useState(false);
+
+  const handleFavoriteChange = () => {
+    setFavoriteChecked(!favoriteChecked);
+  };
 
   useEffect(() => {
     if (!showEditModal) {
@@ -55,10 +61,17 @@ const MyProfilePage = () => {
           handleErrorResponse(err);
         });
     }
+
     if (selectedButton == "posts") {
       loadPosts();
+    } else {
+      if (selectedButton == "items" && favoriteChecked) {
+        loadFavorites();
+      } else if (selectedButton == "items" && !favoriteChecked) {
+        loadItems();
+      }
     }
-  }, [showEditModal, showAddItemModal]);
+  }, [showEditModal, showAddItemModal, favoriteChecked]);
 
   const loadMorePosts = () => {
     networkManager
@@ -70,13 +83,29 @@ const MyProfilePage = () => {
   };
 
   const loadMoreItems = () => {
-    networkManager
-      .post(getDevUrl(getItemsByCurrentUser), { pageIndex: page, pageSize: 5 })
-      .then((response: ICustomResponse) => {
-        console.log(response);
-        setItems((prevItems) => [...prevItems, ...response.data]);
-        setPage(page + 1);
-      });
+    if (favoriteChecked) {
+      networkManager
+        .post(getDevUrl(getFavoriteItemsByCurrentUserEndPoint), {
+          pageIndex: page,
+          pageSize: 5,
+        })
+        .then((response: ICustomResponse) => {
+          console.log(response);
+          setItems((prevItems) => [...prevItems, ...response.data]);
+          setPage(page + 1);
+        });
+    } else {
+      networkManager
+        .post(getDevUrl(getItemsByCurrentUser), {
+          pageIndex: page,
+          pageSize: 5,
+        })
+        .then((response: ICustomResponse) => {
+          console.log(response);
+          setItems((prevItems) => [...prevItems, ...response.data]);
+          setPage(page + 1);
+        });
+    }
   };
 
   const loadItems = () => {
@@ -84,6 +113,20 @@ const MyProfilePage = () => {
     setPosts([]);
     networkManager
       .post(getDevUrl(getItemsByCurrentUser), { pageIndex: 0, pageSize: 5 })
+      .then((response: ICustomResponse) => {
+        setItems(response.data);
+        setPage(1);
+      });
+  };
+
+  const loadFavorites = () => {
+    setSelectedButton("items");
+    setPosts([]);
+    networkManager
+      .post(getDevUrl(getFavoriteItemsByCurrentUserEndPoint), {
+        pageIndex: 0,
+        pageSize: 5,
+      })
       .then((response: ICustomResponse) => {
         console.log(response.data);
         setItems(response.data);
@@ -338,13 +381,40 @@ const MyProfilePage = () => {
                   </button>
                 ) : (
                   selectedButton === "items" && (
-                    <button
-                      type="button"
-                      className="text-gray-900 border border-blue-300 focus:outline-none focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm w-1/4 ml-3 h-10 bg-white hover:bg-gray-100 ring-gray-200"
-                      onClick={() => setAddItemShowModal(true)}
-                    >
-                      Add New Item
-                    </button>
+                    <>
+                      <div className="flex gap-3 items-center w-full">
+                        {" "}
+                        <button
+                          type="button"
+                          className="text-gray-900 border border-blue-300 focus:outline-none focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm w-1/4 ml-3 h-10 bg-white hover:bg-gray-100 ring-gray-200"
+                          onClick={() => setAddItemShowModal(true)}
+                        >
+                          Add New Item
+                        </button>
+                        <div className="flex gap-3 items-center px-4 py-2 pl-4 bg-white rounded-md shadow-md hover:shadow-lg transition duration-300 w-full">
+                          <div className="text-lg font-semibold">
+                            Choose tags:
+                          </div>
+                          <ul className="flex justify-center space-x-2">
+                            <li className="relative">
+                              <button
+                                className={`px-4 py-2 rounded-full ${
+                                  favoriteChecked
+                                    ? "bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 dark:focus:ring-sky-500 ring-2 ring-sky-500"
+                                    : "bg-white text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 ring-2 ring-transparent"
+                                }`}
+                                onClick={handleFavoriteChange}
+                              >
+                                Favorite
+                              </button>
+                              {favoriteChecked && (
+                                <span className="absolute top-0 right-0 block w-2 h-2 bg-sky-500 rounded-full ring-2 ring-white"></span>
+                              )}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </>
                   )
                 )}
               </div>

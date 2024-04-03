@@ -11,7 +11,7 @@ import { emailSend } from '@infrastructure/email/email.service';
 import { VerifyOtpDTO } from '@application/dto/auth/verify.otp';
 import { OtpTargetEnum } from '@application/enums/otp.target.enum';
 import { NotFoundException, ValidationException } from '@application/exceptions';
-
+import { ObjectId } from 'mongodb';
 export class AuthService implements IAuthService {
   public readonly userRepository: IUserRepository;
   public readonly tokenService: ITokenService;
@@ -44,6 +44,7 @@ export class AuthService implements IAuthService {
     const emailText = 'Reset password otp code: ' + otpData.otp;
 
     const otp = await this.otpRepository.create({
+      _id: new ObjectId(),
       email: user.email,
       otp: otpData.otp,
       target: OtpTargetEnum.RESETPASSWORD,
@@ -158,6 +159,7 @@ export class AuthService implements IAuthService {
     const emailText = 'Otp login is active, please use the code to login: ' + otpData.otp;
 
     const otp = await this.otpRepository.create({
+      _id: new ObjectId(),
       email: user.email,
       otp: otpData.otp,
       target: OtpTargetEnum.LOGIN,

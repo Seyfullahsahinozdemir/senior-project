@@ -1,8 +1,10 @@
 import { PaginatedRequest } from '@application/dto/common/paginated.request';
+import { GetFavoriteItemDTO } from '@application/dto/user/get.favorite.item';
 import { UpdateUserDTO } from '@application/dto/user/update.user';
 import { NotFoundException, ValidationException } from '@application/exceptions';
 import { IAuthService, IImageService, IUserService } from '@application/interfaces';
-import { IUserRepository } from '@application/persistence';
+import { IItemRepository, IUserRepository } from '@application/persistence';
+import { Item } from '@domain/entities';
 import { User } from '@domain/entities/identity/user';
 import { ObjectId } from 'mongodb';
 import { isValidObjectId } from 'mongoose';
@@ -11,19 +13,101 @@ export class UserService implements IUserService {
   public readonly userRepository: IUserRepository;
   public readonly authService: IAuthService;
   public readonly imageService: IImageService;
+  public readonly itemRepository: IItemRepository;
 
   constructor({
     userRepository,
     authService,
     imageService,
+    itemRepository,
   }: {
     userRepository: IUserRepository;
     authService: IAuthService;
     imageService: IImageService;
+    itemRepository: IItemRepository;
   }) {
     this.userRepository = userRepository;
     this.authService = authService;
     this.imageService = imageService;
+    this.itemRepository = itemRepository;
+  }
+
+  async getFavoriteItemsByCurrentUser(info: PaginatedRequest): Promise<Item[]> {
+    const user = await this.userRepository.findOne(this.authService.currentUserId as string);
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    const pageIndex = info.pageIndex ? parseInt(info.pageIndex) : 0;
+    const pageSize = info.pageSize ? parseInt(info.pageSize) : 5;
+
+    const result: Item[] = [];
+    const startIndex = pageIndex * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    for (let i = startIndex; i < endIndex && i < user.favoriteItems.length; i++) {
+      result.push(await this.itemRepository.findOne(user.favoriteItems[i].toString()));
+    }
+
+    return result;
+  }
+
+  async getFavoriteItemsByUserId(info: GetFavoriteItemDTO): Promise<Item[]> {
+    const user = await this.userRepository.findOne(info.userId);
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    const pageIndex = info.pageIndex ? parseInt(info.pageIndex) : 0;
+    const pageSize = info.pageSize ? parseInt(info.pageSize) : 5;
+
+    const result: Item[] = [];
+    const startIndex = pageIndex * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    for (let i = startIndex; i < endIndex && i < user.favoriteItems.length; i++) {
+      result.push(await this.itemRepository.findOne(user.favoriteItems[i].toString()));
+    }
+
+    return result;
+  }
+
+  async addFavoriteItem(itemId: string): Promise<void> {
+    const item = await this.itemRepository.findOne(itemId);
+    if (!item) {
+      throw new NotFoundException('Item not found.');
+    }
+
+    const user = await this.userRepository.findOne(this.authService.currentUserId as string);
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    if (user.favoriteItems.map(String).includes(item._id?.toString() ?? '')) {
+      throw new ValidationException('You already add this item to favorite list.');
+    }
+
+    user.favoriteItems.push(new ObjectId(item._id));
+    await this.userRepository.update(user._id?.toString() as string, user);
+  }
+
+  async deleteFavoriteItem(itemId: string): Promise<void> {
+    const item = await this.itemRepository.findOne(itemId);
+    if (!item) {
+      throw new NotFoundException('Item not found.');
+    }
+
+    const user = await this.userRepository.findOne(this.authService.currentUserId as string);
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+    const index = user.favoriteItems.map(String).indexOf(item._id?.toString() ?? '');
+    if (index === -1) {
+      throw new NotFoundException('Item not found in favorite list.');
+    }
+
+    user.favoriteItems.splice(index, 1);
+    await this.userRepository.update(user._id?.toString() as string, user);
   }
 
   async getProfileByUser(_id: string): Promise<User> {

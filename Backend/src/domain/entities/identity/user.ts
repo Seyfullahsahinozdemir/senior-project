@@ -13,6 +13,8 @@ export class User extends AuditableEntity {
   following: ObjectId[];
   followers: ObjectId[];
 
+  favoriteItems: ObjectId[];
+
   constructor(firstName: string, lastName: string, username: string, email: string, password: string) {
     super();
     this.firstName = firstName;
@@ -24,5 +26,6 @@ export class User extends AuditableEntity {
     this.preferences = { image: {} };
     this.following = [];
     this.followers = [];
+    this.favoriteItems = [];
   }
 }

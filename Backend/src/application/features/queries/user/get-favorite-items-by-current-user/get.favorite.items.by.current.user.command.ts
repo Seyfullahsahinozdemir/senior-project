@@ -1,19 +1,19 @@
 import { Dependencies } from '@infrastructure/di';
-import { validate } from './get.items.by.current.user.command.validator';
 import { Response } from 'express';
 import CustomResponse from '@application/interfaces/custom.response';
 import { PaginatedRequest } from '@application/dto/common/paginated.request';
+import { validate } from './get.favorite.items.by.current.user.command.validator';
 import { MimetypeEnum } from '@application/enums/mimetype.enum';
 
-export function makeGetItemsByCurrentUserCommand({
-  itemService,
+export function makeGetFavoriteItemsByCurrentUserCommand({
+  userService,
   userRepository,
   imageService,
   authService,
-}: Pick<Dependencies, 'itemService' | 'userRepository' | 'imageService' | 'authService'>) {
-  return async function updateCommand(command: PaginatedRequest, res: Response) {
+}: Pick<Dependencies, 'userService' | 'userRepository' | 'imageService' | 'authService'>) {
+  return async function getFavoriteItemsByCurrentUserCommand(command: PaginatedRequest, res: Response) {
     await validate(command);
-    const items = await itemService.getItemsByCurrentUser(command as PaginatedRequest);
+    const items = await userService.getFavoriteItemsByCurrentUser(command);
 
     const updatedItems = [];
     for (const item of items) {
@@ -23,7 +23,6 @@ export function makeGetItemsByCurrentUserCommand({
         const fileId = await imageService.findFileIdByName(
           (item.image.filename as string) + (item.image.mimetype == MimetypeEnum.JPEG ? '.jpg' : '.png'),
         );
-
         updatedItems.push({
           _id: item._id,
           urlName: item.urlName,
@@ -66,6 +65,6 @@ export function makeGetItemsByCurrentUserCommand({
       }
     }
 
-    return new CustomResponse(updatedItems, 'success').success(res);
+    return new CustomResponse(updatedItems, 'Success.').success(res);
   };
 }

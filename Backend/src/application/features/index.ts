@@ -36,6 +36,10 @@ import { makeGetPostsByCurrentUserCommand } from './queries/post/get-by-current-
 import { makeGetUserProfileByUserCommand } from './queries/user/get-user-profile-by-user';
 import { makeGetItemsByUserIdCommand } from './queries/item/get-items-by-user-id';
 import { makeGetPostByIdCommand } from './queries/post/get-by-id';
+import { makeAddFavoriteItemCommand } from './commands/user/add-favorite-item';
+import { makeDeleteFavoriteItemCommand } from './commands/user/delete-favorite-item';
+import { makeGetFavoriteItemsByCurrentUserCommand } from './queries/user/get-favorite-items-by-current-user';
+import { makeGetFavoriteItemsByUserIdCommand } from './queries/user/get-favorite-items-by-user-id';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -58,6 +62,8 @@ export function makeUser(dependencies: Dependencies) {
       follow: makeFollowCommand(dependencies),
       unFollow: makeUnFollowCommand(dependencies),
       update: updateUserCommand(dependencies),
+      addFavoriteItem: makeAddFavoriteItemCommand(dependencies),
+      deleteFavoriteItem: makeDeleteFavoriteItemCommand(dependencies),
     },
     queries: {
       getUsers: makeGetUsersCommand(dependencies),
@@ -65,6 +71,8 @@ export function makeUser(dependencies: Dependencies) {
       getFollowers: makeGetFollowersCommand(dependencies),
       getFollowing: makeGetFollowingCommand(dependencies),
       getUserProfileByUser: makeGetUserProfileByUserCommand(dependencies),
+      getFavoriteItemsByCurrentUser: makeGetFavoriteItemsByCurrentUserCommand(dependencies),
+      getFavoriteItemsByUserId: makeGetFavoriteItemsByUserIdCommand(dependencies),
     },
   };
 }

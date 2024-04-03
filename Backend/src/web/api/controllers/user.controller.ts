@@ -3,6 +3,62 @@ import { Dependencies } from '@web/crosscutting/container';
 
 export function userController({ dependencies, router }: { dependencies: Dependencies; router: IRouter }) {
   router.post(
+    '/api/v1/user/get-favorite-items-by-current-user',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function getFavoriteItemsByCurrentUser(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.user.queries.getFavoriteItemsByCurrentUser(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/user/get-favorite-items-by-user-id',
+    dependencies.authenticationMiddleware.authenticateForUser,
+
+    async function getFavoriteItemsByUserId(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.user.queries.getFavoriteItemsByUserId(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/user/add-favorite-item',
+    dependencies.authenticationMiddleware.authenticateForUser,
+
+    async function addFavoriteItem(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.user.commands.addFavoriteItem(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/user/delete-favorite-item',
+    dependencies.authenticationMiddleware.authenticateForUser,
+
+    async function deleteFavoriteItem(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.user.commands.deleteFavoriteItem(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
+  //
+  router.post(
     '/api/v1/user/get-followers',
     dependencies.authenticationMiddleware.authenticateForUser,
 

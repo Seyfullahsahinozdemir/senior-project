@@ -8,7 +8,8 @@ export function makeGetItemsByUserIdCommand({
   itemService,
   userRepository,
   imageService,
-}: Pick<Dependencies, 'itemService' | 'userRepository' | 'imageService'>) {
+  authService,
+}: Pick<Dependencies, 'itemService' | 'userRepository' | 'imageService' | 'authService'>) {
   return async function updateCommand(command: { pageSize: string; pageIndex: string; userId: string }, res: Response) {
     await validate(command);
     const items = await itemService.getItemsByUserId(
@@ -40,6 +41,8 @@ export function makeGetItemsByUserIdCommand({
             lastName: user.lastName,
             email: user.email,
           },
+          me: item.createdBy === authService.currentUserId ? true : false,
+          onFavorite: user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       } else {
         updatedItems.push({
@@ -58,6 +61,8 @@ export function makeGetItemsByUserIdCommand({
             lastName: user.lastName,
             email: user.email,
           },
+          me: item.createdBy === authService.currentUserId ? true : false,
+          onFavorite: user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       }
     }
