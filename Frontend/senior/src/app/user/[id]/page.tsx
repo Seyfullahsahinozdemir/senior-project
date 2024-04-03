@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import NetworkManager from "@/network/network.manager";
 import {
   getDevUrl,
+  getFavoriteItemsByUserIdEndPoint,
   getItemsByUserId,
   getPostsByUserId,
   getUserProfileByUserEndPoint,
@@ -32,6 +33,7 @@ const UserProfilePage = () => {
   const [items, setItems] = useState<GetItemsByCurrentUser[]>([]);
   const [page, setPage] = useState(0);
   const [selectedButton, setSelectedButton] = useState<string>("posts");
+  const [favoriteChecked, setFavoriteChecked] = useState(false);
 
   const pathname = usePathname();
   const userId = pathname.split("/").pop();
@@ -49,8 +51,14 @@ const UserProfilePage = () => {
       });
     if (selectedButton == "posts") {
       loadPosts();
+    } else {
+      if (selectedButton == "items" && favoriteChecked) {
+        loadFavorites();
+      } else if (selectedButton == "items" && !favoriteChecked) {
+        loadItems();
+      }
     }
-  }, []);
+  }, [favoriteChecked]);
 
   const loadMorePosts = () => {
     networkManager
@@ -66,16 +74,30 @@ const UserProfilePage = () => {
   };
 
   const loadMoreItems = () => {
-    networkManager
-      .post(getDevUrl(getItemsByUserId), {
-        pageIndex: page,
-        pageSize: 5,
-        userId: userId,
-      })
-      .then((response: ICustomResponse) => {
-        setItems((prevItems) => [...prevItems, ...response.data]);
-        setPage(page + 1);
-      });
+    if (favoriteChecked) {
+      networkManager
+        .post(getDevUrl(getFavoriteItemsByUserIdEndPoint), {
+          pageIndex: page,
+          pageSize: 5,
+          userId,
+        })
+        .then((response: ICustomResponse) => {
+          console.log(response);
+          setItems((prevItems) => [...prevItems, ...response.data]);
+          setPage(page + 1);
+        });
+    } else {
+      networkManager
+        .post(getDevUrl(getItemsByUserId), {
+          pageIndex: page,
+          pageSize: 5,
+          userId: userId,
+        })
+        .then((response: ICustomResponse) => {
+          setItems((prevItems) => [...prevItems, ...response.data]);
+          setPage(page + 1);
+        });
+    }
   };
 
   const loadItems = () => {
@@ -106,6 +128,26 @@ const UserProfilePage = () => {
         setPosts(response.data);
         setPage(1);
       });
+  };
+
+  const loadFavorites = () => {
+    setSelectedButton("items");
+    setPosts([]);
+    networkManager
+      .post(getDevUrl(getFavoriteItemsByUserIdEndPoint), {
+        pageIndex: 0,
+        pageSize: 5,
+        userId,
+      })
+      .then((response: ICustomResponse) => {
+        console.log(response.data);
+        setItems(response.data);
+        setPage(1);
+      });
+  };
+
+  const handleFavoriteChange = () => {
+    setFavoriteChecked(!favoriteChecked);
   };
 
   return (
@@ -248,11 +290,36 @@ const UserProfilePage = () => {
               ) : (
                 selectedButton === "items" && (
                   <>
-                    <div className="flex items-center justify-center flex-wrap gap-3 pt-4">
-                      {items.map((item, index) => (
-                        <SimpleItemCardComponent key={index} item={item} />
-                      ))}
+                    <div className="items-center w-7/8">
+                      <div className="flex gap-3 items-center px-4 py-2 pl-4 bg-white rounded-md shadow-md hover:shadow-lg transition duration-300 w-full">
+                        <div className="text-lg font-semibold">
+                          Choose tags:
+                        </div>
+                        <ul className="flex justify-center space-x-2">
+                          <li className="relative">
+                            <button
+                              className={`px-4 py-2 rounded-full ${
+                                favoriteChecked
+                                  ? "bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 dark:focus:ring-sky-500 ring-2 ring-sky-500"
+                                  : "bg-white text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 ring-2 ring-transparent"
+                              }`}
+                              onClick={handleFavoriteChange}
+                            >
+                              Favorite
+                            </button>
+                            {favoriteChecked && (
+                              <span className="absolute top-0 right-0 block w-2 h-2 bg-sky-500 rounded-full ring-2 ring-white"></span>
+                            )}
+                          </li>
+                        </ul>
+                      </div>
+                      <div className="flex items-center justify-center flex-wrap gap-3 pt-4">
+                        {items.map((item, index) => (
+                          <SimpleItemCardComponent key={index} item={item} />
+                        ))}
+                      </div>
                     </div>
+
                     <div className="flex justify-center mt-4">
                       <button
                         className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm px-6 py-2"

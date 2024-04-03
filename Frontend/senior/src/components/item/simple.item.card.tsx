@@ -1,12 +1,60 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import { AiOutlineDelete } from "react-icons/ai";
 import { GetItemsByCurrentUser } from "@/interfaces/item/get.items.by.current.user";
 import useFormattedDate from "@/helpers/useFormattedDate.hook";
-import DeleteItemModal from "../modal/delete.item.modal";
+import { AiFillSave } from "react-icons/ai";
+import { ICustomResponse } from "@/interfaces/ICustomResponse";
+import {
+  addFavoriteItemEndPoint,
+  deleteFavoriteItemEndPoint,
+  getDevUrl,
+} from "@/network/endpoints";
+import { toast } from "react-toastify";
+import NetworkManager from "@/network/network.manager";
+import { useAxiosWithAuthentication } from "@/helpers/auth.axios.hook";
+import useErrorHandling from "@/helpers/useErrorHandler.hook";
 
 const SimpleItemCardComponent = ({ item }: { item: GetItemsByCurrentUser }) => {
   const { formatDate } = useFormattedDate();
+  const [saved, setSaved] = useState<boolean>(item.onFavorite);
+  const networkManager: NetworkManager = useAxiosWithAuthentication();
+  const { handleErrorResponse } = useErrorHandling();
+
+  const handleSaveToCollection = async () => {
+    try {
+      if (!saved) {
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(addFavoriteItemEndPoint),
+          {
+            itemId: item._id,
+          }
+        );
+
+        if (response.success) {
+          toast.success(response.message);
+          setSaved(true);
+        } else {
+          toast.error(response.data.errors);
+        }
+      } else {
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(deleteFavoriteItemEndPoint),
+          {
+            itemId: item._id,
+          }
+        );
+
+        if (response.success) {
+          toast.success(response.message);
+          setSaved(false);
+        } else {
+          toast.error(response.data.errors);
+        }
+      }
+    } catch (error) {
+      handleErrorResponse(error);
+    }
+  };
 
   return (
     <>
@@ -22,6 +70,16 @@ const SimpleItemCardComponent = ({ item }: { item: GetItemsByCurrentUser }) => {
                   {formatDate(item.createdAt)}
                 </span>
               </div>
+            </div>
+            <div
+              onClick={handleSaveToCollection}
+              className="cursor-pointer hover:shadow-2xl mr-4"
+            >
+              {saved ? (
+                <AiFillSave className="text-green-600 dark:text-green-500 text-2xl rounded-full" />
+              ) : (
+                <AiFillSave className="text-blue-600 dark:text-blue-500 text-2xl rounded-full" />
+              )}
             </div>
           </div>
           <p className="text-black dark:text-white block text-xl leading-snug mt-3">

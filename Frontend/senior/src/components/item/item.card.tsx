@@ -1,9 +1,19 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import { AiOutlineDelete } from "react-icons/ai";
+import { AiOutlineDelete, AiOutlineSave, AiFillSave } from "react-icons/ai";
 import { GetItemsByCurrentUser } from "@/interfaces/item/get.items.by.current.user";
 import useFormattedDate from "@/helpers/useFormattedDate.hook";
 import DeleteItemModal from "../modal/delete.item.modal";
+import NetworkManager from "@/network/network.manager";
+import { useAxiosWithAuthentication } from "@/helpers/auth.axios.hook";
+import { ICustomResponse } from "@/interfaces/ICustomResponse";
+import {
+  addFavoriteItemEndPoint,
+  deleteFavoriteItemEndPoint,
+  getDevUrl,
+} from "@/network/endpoints";
+import useErrorHandling from "@/helpers/useErrorHandler.hook";
+import { toast } from "react-toastify";
 
 const ItemCardComponent = ({
   item,
@@ -14,9 +24,48 @@ const ItemCardComponent = ({
 }) => {
   const { formatDate } = useFormattedDate();
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const networkManager: NetworkManager = useAxiosWithAuthentication();
+  const { handleErrorResponse } = useErrorHandling();
+  const [saved, setSaved] = useState<boolean>(item.onFavorite);
 
   const handleOverlayClick = () => {
     setShowDeleteModal(false);
+  };
+
+  const handleSaveToCollection = async () => {
+    try {
+      if (!saved) {
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(addFavoriteItemEndPoint),
+          {
+            itemId: item._id,
+          }
+        );
+
+        if (response.success) {
+          toast.success(response.message);
+          setSaved(true);
+        } else {
+          toast.error(response.data.errors);
+        }
+      } else {
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(deleteFavoriteItemEndPoint),
+          {
+            itemId: item._id,
+          }
+        );
+
+        if (response.success) {
+          toast.success(response.message);
+          setSaved(false);
+        } else {
+          toast.error(response.data.errors);
+        }
+      }
+    } catch (error) {
+      handleErrorResponse(error);
+    }
   };
 
   return (
@@ -35,7 +84,18 @@ const ItemCardComponent = ({
         )}
 
         <div className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-800 p-4 rounded-xl border max-w-xl relative">
-          <div className="absolute top-0 right-0 p-4">
+          <div className="absolute top-0 right-0 p-4 flex items-center">
+            <div
+              onClick={handleSaveToCollection}
+              className="cursor-pointer hover:shadow-2xl mr-4"
+            >
+              {saved ? (
+                <AiFillSave className="text-green-600 dark:text-green-500 text-2xl rounded-full" />
+              ) : (
+                <AiOutlineSave className="text-blue-600 dark:text-blue-500 text-2xl rounded-full" />
+              )}
+            </div>
+
             <div
               onClick={() => setShowDeleteModal(true)}
               className="cursor-pointer hover:shadow-2xl"
@@ -58,20 +118,6 @@ const ItemCardComponent = ({
           <p className="text-black dark:text-white block text-xl leading-snug mt-3">
             {item.description}
           </p>
-          {/* {item.subCategories && item.subCategories.length > 0 && (
-            <div className="mt-2">
-              <span className="text-gray-600">Subcategories:</span>
-              <ul className="list-disc list-inside">
-                {item.subCategories.map(
-                  (subCategory: string, index: number) => (
-                    <li key={index} className="text-gray-600">
-                      {subCategory}
-                    </li>
-                  )
-                )}
-              </ul>
-            </div>
-          )} */}
           {item.image.filename && (
             <div className="flex justify-center mt-4">
               <Image

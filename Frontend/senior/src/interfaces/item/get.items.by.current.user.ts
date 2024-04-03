@@ -14,4 +14,6 @@ export type GetItemsByCurrentUser = {
     lastName: string;
     email: string;
   };
+  me: boolean;
+  onFavorite: boolean;
 };

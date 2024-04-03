@@ -24,6 +24,14 @@ export const likePostEndPoint = "/post/like";
 export const unLikePostEndPoint = "/post/unlike";
 export const getPostByIdEndPoint = "/post/get-post-by-id";
 
+// user-favorite
+export const getFavoriteItemsByCurrentUserEndPoint =
+  "/user/get-favorite-items-by-current-user";
+export const getFavoriteItemsByUserIdEndPoint =
+  "/user/get-favorite-items-by-user-id";
+export const addFavoriteItemEndPoint = "/user/add-favorite-item";
+export const deleteFavoriteItemEndPoint = "/user/delete-favorite-item";
+
 // comment
 export const getCommentsEndPoint = "/post/comment/get";
 export const createCommentEndPoint = "/post/comment/create";
