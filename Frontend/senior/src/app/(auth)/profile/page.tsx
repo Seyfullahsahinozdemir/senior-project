@@ -32,7 +32,6 @@ import AddItemModal from "@/components/modal/add.item.modal";
 const MyProfilePage = () => {
   const [user, setUser] = useState<User>();
   const networkManager: NetworkManager = useAxiosWithAuthentication();
-  const [showEditModal, setEditShowModal] = useState(false);
   const [showAddItemModal, setAddItemShowModal] = useState(false);
 
   const router = useRouter();
@@ -49,18 +48,16 @@ const MyProfilePage = () => {
   };
 
   useEffect(() => {
-    if (!showEditModal) {
-      networkManager
-        .post(getDevUrl(getProfileEndPoint), {})
-        .then((response) => {
-          if (response.success) {
-            setUser(response.data.user);
-          }
-        })
-        .catch((err) => {
-          handleErrorResponse(err);
-        });
-    }
+    networkManager
+      .post(getDevUrl(getProfileEndPoint), {})
+      .then((response) => {
+        if (response.success) {
+          setUser(response.data.user);
+        }
+      })
+      .catch((err) => {
+        handleErrorResponse(err);
+      });
 
     if (selectedButton == "posts") {
       loadPosts();
@@ -71,7 +68,7 @@ const MyProfilePage = () => {
         loadItems();
       }
     }
-  }, [showEditModal, showAddItemModal, favoriteChecked]);
+  }, [showAddItemModal, favoriteChecked]);
 
   const loadMorePosts = () => {
     networkManager
@@ -211,16 +208,6 @@ const MyProfilePage = () => {
 
   return (
     <div>
-      {user && (
-        <EditProfileModal
-          show={showEditModal}
-          setShow={setEditShowModal}
-          info={user}
-          onUpdateUser={(updatedUser: User) => {
-            setUser(updatedUser);
-          }}
-        />
-      )}
       {
         <AddItemModal
           show={showAddItemModal}
@@ -286,7 +273,7 @@ const MyProfilePage = () => {
                   data-modal-target="edit-profile-modal"
                   data-modal-toggle="edit-profile-modal"
                   className="w-5 h-5 hover:text-blue-300 cursor-pointer"
-                  onClick={() => setEditShowModal(true)}
+                  onClick={() => router.push("/profile/edit")}
                 />
               </div>
               <div className="text-gray-700">
