@@ -24,7 +24,6 @@ const EditProfileModal = ({
 }) => {
   const [user, setUser] = useState<User>(info);
   const networkManager: NetworkManager = useAxiosWithAuthentication();
-  const [file, setFile] = useState<File | null>(null);
   const [uploadedImage, setUploadedImage] = useState<{
     filename: string;
     fileId: string;
@@ -66,7 +65,6 @@ const EditProfileModal = ({
     if (selectedFile) {
       const allowedTypes = ["image/jpeg", "image/png"];
       if (allowedTypes.includes(selectedFile.type)) {
-        setFile(selectedFile);
         try {
           const formData = new FormData();
           formData.append("image", selectedFile);
