@@ -26,7 +26,6 @@ const AddItemModal = ({
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [category, setCategory] = useState<string>("");
-  const [file, setFile] = useState<File | null>(null);
   const [uploadedImage, setUploadedImage] = useState<{
     filename: string;
     fileId: string;
@@ -85,7 +84,6 @@ const AddItemModal = ({
     if (selectedFile) {
       const allowedTypes = ["image/jpeg", "image/png"];
       if (allowedTypes.includes(selectedFile.type)) {
-        setFile(selectedFile);
         try {
           const formData = new FormData();
           formData.append("image", selectedFile);
