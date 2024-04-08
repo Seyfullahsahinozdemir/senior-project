@@ -23,6 +23,7 @@ export const deletePost = "/post/delete";
 export const likePostEndPoint = "/post/like";
 export const unLikePostEndPoint = "/post/unlike";
 export const getPostByIdEndPoint = "/post/get-post-by-id";
+export const postCreateEndPoint = "/post/create";
 
 // user-favorite
 export const getFavoriteItemsByCurrentUserEndPoint =
@@ -44,6 +45,8 @@ export const getItemsByCurrentUser = "/item/get-items-by-current-user";
 export const getItemsByUserId = "/item/get-items-by-user-id";
 export const deleteItemEndPoint = "/item/delete";
 export const createItemEndPoint = "/item/create";
+export const getItemsByCurrentUserAndCategoryEndPoint =
+  "/item/get-items-by-user-and-category";
 
 // image
 export const uploadImageEndPoint = "/image/upload";

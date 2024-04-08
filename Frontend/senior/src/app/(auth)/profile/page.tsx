@@ -32,7 +32,6 @@ import AddItemModal from "@/components/modal/add.item.modal";
 const MyProfilePage = () => {
   const [user, setUser] = useState<User>();
   const networkManager: NetworkManager = useAxiosWithAuthentication();
-  const [showAddItemModal, setAddItemShowModal] = useState(false);
 
   const router = useRouter();
   const { formatDate } = useFormattedDate();
@@ -68,7 +67,7 @@ const MyProfilePage = () => {
         loadItems();
       }
     }
-  }, [showAddItemModal, favoriteChecked]);
+  }, [favoriteChecked]);
 
   const loadMorePosts = () => {
     networkManager
@@ -208,15 +207,6 @@ const MyProfilePage = () => {
 
   return (
     <div>
-      {
-        <AddItemModal
-          show={showAddItemModal}
-          setShow={setAddItemShowModal}
-          onAddItem={() => {
-            loadItems();
-          }}
-        />
-      }
       <div className="container mx-auto my-5 p-5">
         <div className="md:flex no-wrap md:-mx-2 ">
           <div className="w-full md:w-3/12 md:mx-2">
@@ -374,7 +364,7 @@ const MyProfilePage = () => {
                         <button
                           type="button"
                           className="text-gray-900 border border-blue-300 focus:outline-none focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm w-1/4 ml-3 h-10 bg-white hover:bg-gray-100 ring-gray-200"
-                          onClick={() => setAddItemShowModal(true)}
+                          onClick={() => router.push("/item/add")}
                         >
                           Add New Item
                         </button>

@@ -6,6 +6,7 @@ export interface IItemService {
   getItemsByCurrentUser(request: PaginatedRequest): Promise<Item[]>;
   getItemsByUserId(request: PaginatedRequest, userId: string): Promise<Item[]>;
 
+  getItemsByCurrentUserAndCategory(request: PaginatedRequest, categoryName: string): Promise<Item[]>;
   createItem(request: RequestItemDTO): Promise<Item>;
   deleteItem(_id: string): Promise<void>;
 }

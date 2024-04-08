@@ -54,5 +54,18 @@ export function itemController({ dependencies, router }: { dependencies: Depende
     },
   );
 
+  router.post(
+    '/api/v1/item/get-items-by-user-and-category',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function get(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.item.queries.getItemsByUserAndCategory(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
   return router;
 }

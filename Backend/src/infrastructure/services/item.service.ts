@@ -15,6 +15,19 @@ export class ItemService implements IItemService {
     this.authService = authService;
   }
 
+  async getItemsByCurrentUserAndCategory(request: PaginatedRequest, categoryName: string): Promise<Item[]> {
+    const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
+    const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
+    return await this.itemRepository.find(
+      { createdBy: this.authService.currentUserId, topCategory: categoryName },
+      pageIndex,
+      pageSize,
+      {
+        createdAt: -1,
+      },
+    );
+  }
+
   async getItemsByUserId(request: PaginatedRequest, userId: string): Promise<Item[]> {
     const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
     const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;

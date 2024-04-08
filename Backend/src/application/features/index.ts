@@ -40,6 +40,7 @@ import { makeAddFavoriteItemCommand } from './commands/user/add-favorite-item';
 import { makeDeleteFavoriteItemCommand } from './commands/user/delete-favorite-item';
 import { makeGetFavoriteItemsByCurrentUserCommand } from './queries/user/get-favorite-items-by-current-user';
 import { makeGetFavoriteItemsByUserIdCommand } from './queries/user/get-favorite-items-by-user-id';
+import { makeGetItemsByCurrentUserAndCategoryCommand } from './queries/item/get-items-by-user-and-category';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -99,6 +100,7 @@ export function makeItem(dependencies: Dependencies) {
     queries: {
       get: getItemsCommand(dependencies),
       getItemsByUserId: makeGetItemsByUserIdCommand(dependencies),
+      getItemsByUserAndCategory: makeGetItemsByCurrentUserAndCategoryCommand(dependencies),
     },
   };
 }
