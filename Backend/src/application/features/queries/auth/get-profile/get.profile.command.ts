@@ -1,13 +1,18 @@
 import { Dependencies } from '@infrastructure/di';
 import { Response } from 'express';
 import CustomResponse from '@application/interfaces/custom.response';
+import { NotFoundException } from '@application/exceptions';
 
 export function makeGetProfileCommand({
   authService,
   userRepository,
 }: Pick<Dependencies, 'authService' | 'userRepository'>) {
   return async function getProfileCommand(res: Response) {
-    const result = await authService.getMyProfile(authService.currentUserId as string);
+    if (!authService.currentUserId) {
+      throw new NotFoundException('Current user not found');
+    }
+
+    const result = await authService.getMyProfile(authService.currentUserId);
 
     const followingList = [];
     for (const following of result.following) {

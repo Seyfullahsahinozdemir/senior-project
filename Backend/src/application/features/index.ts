@@ -41,6 +41,7 @@ import { makeDeleteFavoriteItemCommand } from './commands/user/delete-favorite-i
 import { makeGetFavoriteItemsByCurrentUserCommand } from './queries/user/get-favorite-items-by-current-user';
 import { makeGetFavoriteItemsByUserIdCommand } from './queries/user/get-favorite-items-by-user-id';
 import { makeGetItemsByCurrentUserAndCategoryCommand } from './queries/item/get-items-by-user-and-category';
+import { makeGetPostsByItemIdCommand } from './queries/post/get-by-item-id';
 
 export function makeAuth(dependencies: Dependencies) {
   return {
@@ -117,6 +118,7 @@ export function makePost(dependencies: Dependencies) {
       get: makeGetPostsCommand(dependencies),
       getPostById: makeGetPostByIdCommand(dependencies),
       getPostByUserId: makeGetPostsByUserIdCommand(dependencies),
+      getPostByItemId: makeGetPostsByItemIdCommand(dependencies),
       getPostByCurrentUser: makeGetPostsByCurrentUserCommand(dependencies),
     },
   };

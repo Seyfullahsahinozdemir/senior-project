@@ -4,3 +4,4 @@ export * from './category.controller';
 export * from './item.controller';
 export * from './post.controller';
 export * from './image.controller';
+export * from './search.controller';

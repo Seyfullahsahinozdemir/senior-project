@@ -1,12 +1,10 @@
 import { IRouter, NextFunction, Request, Response } from 'express';
 import { Dependencies } from '@web/crosscutting/container';
 import multer from 'multer';
-import { NotFoundException } from '@application/exceptions';
 
 export function postController({
   dependencies,
   router,
-  upload,
 }: {
   dependencies: Dependencies;
   router: IRouter;
@@ -130,23 +128,6 @@ export function postController({
   );
 
   router.post(
-    '/api/v1/post/search',
-    dependencies.authenticationMiddleware.authenticateForUser,
-    upload.single('image'),
-    async function search(request: Request, response: Response, next: NextFunction) {
-      try {
-        if (!request.file) {
-          throw new NotFoundException('No image provided.');
-        }
-        const result = await dependencies.search.queries.get(request.file, response);
-        return result;
-      } catch (error) {
-        return next(error);
-      }
-    },
-  );
-
-  router.post(
     '/api/v1/post/get',
     dependencies.authenticationMiddleware.authenticateForUser,
     async function getPosts(request: Request, response: Response, next: NextFunction) {
@@ -178,6 +159,19 @@ export function postController({
     async function getPostsByUserId(request: Request, response: Response, next: NextFunction) {
       try {
         const result = await dependencies.post.queries.getPostByUserId(request.body, response);
+        return result;
+      } catch (error) {
+        return next(error);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/post/get-posts-by-item-id',
+    dependencies.authenticationMiddleware.authenticateForUser,
+    async function getPostsByItemId(request: Request, response: Response, next: NextFunction) {
+      try {
+        const result = await dependencies.post.queries.getPostByItemId(request.body, response);
         return result;
       } catch (error) {
         return next(error);

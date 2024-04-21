@@ -21,13 +21,11 @@ import "react-toastify/dist/ReactToastify.css";
 import useFormattedDate from "@/helpers/useFormattedDate.hook";
 import useErrorHandling from "@/helpers/useErrorHandler.hook";
 import { User } from "@/interfaces/User";
-import EditProfileModal from "@/components/modal/edit.profile.modal";
 import { GetPostsByUserIdType } from "@/interfaces/post/get.posts.by.user.id";
 import { ICustomResponse } from "@/interfaces/ICustomResponse";
 import PostCardComponent from "@/components/post/post.card";
 import { GetItemsByCurrentUser } from "@/interfaces/item/get.items.by.current.user";
 import ItemCardComponent from "@/components/item/item.card";
-import AddItemModal from "@/components/modal/add.item.modal";
 
 const MyProfilePage = () => {
   const [user, setUser] = useState<User>();
@@ -202,7 +200,7 @@ const MyProfilePage = () => {
   };
 
   const handleAddNewPost = () => {
-    console.log("Post eklendi");
+    router.push("/post/add");
   };
 
   return (

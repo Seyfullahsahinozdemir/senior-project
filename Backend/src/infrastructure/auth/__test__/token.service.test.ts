@@ -33,7 +33,7 @@ describe('TokenService', () => {
 
       const result = tokenService.generateToken(payload);
 
-      expect(mockedJsonWebToken.sign).toHaveBeenCalledWith(payload, 'Senior', { expiresIn: '1h' });
+      expect(mockedJsonWebToken.sign).toHaveBeenCalledWith(payload, 'Senior', { expiresIn: '10d' });
       expect(result).toBe(mockGeneratedToken);
     });
   });

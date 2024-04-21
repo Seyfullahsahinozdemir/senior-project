@@ -9,7 +9,8 @@ export function makeGetItemsByCurrentUserAndCategoryCommand({
   userRepository,
   imageService,
   authService,
-}: Pick<Dependencies, 'itemService' | 'userRepository' | 'imageService' | 'authService'>) {
+  itemRepository,
+}: Pick<Dependencies, 'itemService' | 'userRepository' | 'imageService' | 'authService' | 'itemRepository'>) {
   return async function makeGetItemsByCurrentUserAndCategoryCommand(
     command: { pageSize: string; pageIndex: string; categoryName: string },
     res: Response,
@@ -28,7 +29,11 @@ export function makeGetItemsByCurrentUserAndCategoryCommand({
         const fileId = await imageService.findFileIdByName(
           (item.image.filename as string) + (item.image.mimetype == MimetypeEnum.JPEG ? '.jpg' : '.png'),
         );
-
+        if (!item.image.public) {
+          await imageService.generatePublicUrl(fileId);
+          item.image.public = true;
+          await itemRepository.update(item._id?.toString() as string, item);
+        }
         updatedItems.push({
           _id: item._id,
           urlName: item.urlName,
@@ -36,7 +41,7 @@ export function makeGetItemsByCurrentUserAndCategoryCommand({
           title: item.title,
           topCategory: item.topCategory,
           subCategories: item.subCategories,
-          image: { fileId: fileId, fileName: item.image.filename, mimetype: item.image.mimetype },
+          image: { fileId: fileId, filename: item.image.filename, mimetype: item.image.mimetype },
           createdAt: item.createdAt,
           createdBy: {
             _id: user._id,
@@ -49,6 +54,11 @@ export function makeGetItemsByCurrentUserAndCategoryCommand({
           onFavorite: user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       } else {
+        if (!item.image.public) {
+          await imageService.generatePublicUrl(item.image.fileId);
+          item.image.public = true;
+          await itemRepository.update(item._id?.toString() as string, item);
+        }
         updatedItems.push({
           _id: item._id,
           urlName: item.urlName,

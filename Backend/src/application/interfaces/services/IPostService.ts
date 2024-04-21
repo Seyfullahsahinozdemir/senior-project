@@ -9,6 +9,7 @@ import { Comment } from '@domain/entities/comment';
 export interface IPostService {
   getPosts(request: PaginatedRequest): Promise<Post[]>;
   getPostsByUserId(request: PaginatedRequest, userId: string): Promise<Post[]>;
+  getPostsByItemId(request: PaginatedRequest, itemId: string): Promise<Post[]>;
   getPostsByCurrentUser(request: PaginatedRequest): Promise<Post[]>;
   getPostById(postId: string): Promise<Post>;
 

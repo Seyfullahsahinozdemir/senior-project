@@ -9,13 +9,24 @@ const mockCategoryRepository = {
   create: jest.fn(),
   delete: jest.fn(),
   deleteMany: jest.fn(),
+  aggregate: jest.fn(),
+};
+
+const mockAuthService = {
+  resetPassword: jest.fn(),
+  verifyForResetPassword: jest.fn(),
+  getMyProfile: jest.fn(),
+  verifyForLogin: jest.fn(),
+  login: jest.fn(),
+  register: jest.fn(),
+  currentUserId: null,
 };
 
 describe('CategoryService', () => {
   let categoryService: CategoryService;
 
   beforeEach(() => {
-    categoryService = new CategoryService({ categoryRepository: mockCategoryRepository });
+    categoryService = new CategoryService({ categoryRepository: mockCategoryRepository, authService: mockAuthService });
   });
 
   afterEach(() => {

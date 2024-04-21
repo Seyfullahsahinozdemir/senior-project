@@ -10,7 +10,8 @@ export function makeGetItemsByCurrentUserCommand({
   userRepository,
   imageService,
   authService,
-}: Pick<Dependencies, 'itemService' | 'userRepository' | 'imageService' | 'authService'>) {
+  itemRepository,
+}: Pick<Dependencies, 'itemService' | 'userRepository' | 'imageService' | 'authService' | 'itemRepository'>) {
   return async function updateCommand(command: PaginatedRequest, res: Response) {
     await validate(command);
     const items = await itemService.getItemsByCurrentUser(command as PaginatedRequest);
@@ -24,6 +25,12 @@ export function makeGetItemsByCurrentUserCommand({
           (item.image.filename as string) + (item.image.mimetype == MimetypeEnum.JPEG ? '.jpg' : '.png'),
         );
 
+        if (!item.image.public) {
+          await imageService.generatePublicUrl(fileId);
+          item.image.public = true;
+          await itemRepository.update(item._id?.toString() as string, item);
+        }
+
         updatedItems.push({
           _id: item._id,
           urlName: item.urlName,
@@ -31,7 +38,7 @@ export function makeGetItemsByCurrentUserCommand({
           title: item.title,
           topCategory: item.topCategory,
           subCategories: item.subCategories,
-          image: { fileId: fileId, fileName: item.image.filename, mimetype: item.image.mimetype },
+          image: { fileId: fileId, filename: item.image.filename, mimetype: item.image.mimetype },
           createdAt: item.createdAt,
           createdBy: {
             _id: user._id,
@@ -44,6 +51,11 @@ export function makeGetItemsByCurrentUserCommand({
           onFavorite: user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       } else {
+        if (!item.image.public) {
+          await imageService.generatePublicUrl(item.image.fileId);
+          item.image.public = true;
+          await itemRepository.update(item._id?.toString() as string, item);
+        }
         updatedItems.push({
           _id: item._id,
           urlName: item.urlName,

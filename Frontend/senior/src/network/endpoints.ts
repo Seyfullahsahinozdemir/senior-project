@@ -18,6 +18,7 @@ export const getUserProfileByUserEndPoint = "/user/get-user-profile-by-user";
 // post
 export const getPosts = "/post/get";
 export const getPostsByUserId = "/post/get-posts-by-user-id";
+export const getPostsByItemId = "/post/get-posts-by-item-id";
 export const getPostsByCurrentUser = "/post/get-posts-by-current-user";
 export const deletePost = "/post/delete";
 export const likePostEndPoint = "/post/like";
@@ -53,6 +54,9 @@ export const uploadImageEndPoint = "/image/upload";
 
 // category
 export const getCategoriesEndPoint = "/category/get";
+
+// search
+export const getSimilarItems = "/search/get";
 
 export const getProdUrl = (url: string) => baseURLForProd + url;
 

@@ -13,6 +13,15 @@ describe('GetFollowers Command', () => {
     getFollowers: jest.fn(),
     getFollowing: jest.fn(),
     listUsers: jest.fn(),
+    listUsersByUsername: jest.fn(),
+    updateUser: jest.fn(),
+    getProfileByUser: jest.fn(),
+
+    getFavoriteItemsByUserId: jest.fn(),
+    getFavoriteItemsByCurrentUser: jest.fn(),
+
+    addFavoriteItem: jest.fn(),
+    deleteFavoriteItem: jest.fn(),
   };
 
   const dependenciesMock = {

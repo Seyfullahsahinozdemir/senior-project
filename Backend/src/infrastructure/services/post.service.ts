@@ -33,6 +33,17 @@ export class PostService implements IPostService {
     this.authService = authService;
   }
 
+  async getPostsByItemId(request: PaginatedRequest, itemId: string): Promise<Post[]> {
+    const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
+    const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
+
+    const posts = await this.postRepository.find({ items: { $in: [itemId] } }, pageIndex, pageSize, {
+      createdAt: -1,
+    });
+
+    return posts;
+  }
+
   async getComments(request: PaginatedRequest, postId: string): Promise<Comment[]> {
     const pageIndex = request.pageIndex ? parseInt(request.pageIndex) : 0;
     const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;

@@ -1,6 +1,7 @@
 import { IImageService } from '@application/interfaces/services/IImageService';
 import * as fs from 'fs';
 import { google } from 'googleapis';
+import { Readable } from 'stream';
 
 export class ImageService implements IImageService {
   // private uploadDir = './uploads';
@@ -40,6 +41,73 @@ export class ImageService implements IImageService {
       return { fileId, fileName: fileNameWithoutExtension };
     } catch (error) {
       console.error('Error uploading image to Google Drive:', error);
+      throw error;
+    }
+  }
+
+  async getImage(fileId: string): Promise<Express.Multer.File> {
+    try {
+      const tempDir = './temp';
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir);
+      }
+
+      const response = await this.drive.files.get(
+        {
+          fileId: fileId,
+          alt: 'media',
+        },
+        { responseType: 'stream' },
+      );
+
+      const imageStream = response.data as Readable;
+
+      // Assuming you have a directory for temporary image storage
+      const filePath = `./temp/${fileId}.jpg`; // You may adjust file extension based on your file type
+
+      // Create a writable stream to save the image
+      const fileWriteStream = fs.createWriteStream(filePath);
+
+      // Pipe the image stream to the file stream
+      await new Promise((resolve, reject) => {
+        imageStream.pipe(fileWriteStream).on('finish', resolve).on('error', reject);
+      });
+
+      // Create Express.Multer.File object
+      const file: Express.Multer.File = {
+        fieldname: 'image',
+        originalname: fileId, // You may want to set a proper name here
+        encoding: 'binary', // or whatever encoding suits your image
+        mimetype: 'image/jpeg', // or whatever mimetype your image has
+        destination: './temp', // adjust the destination based on your setup
+        filename: `${fileId}.jpg`, // adjust filename and extension based on your file type
+        path: filePath,
+        size: fs.statSync(filePath).size,
+        stream: fs.createReadStream(filePath), // Add stream property
+        buffer: fs.readFileSync(filePath), // Add buffer property
+      };
+
+      return file;
+    } catch (error) {
+      console.error('Error getting image from Google Drive:', error);
+      throw error;
+    }
+  }
+
+  async getImageName(fileId: string): Promise<string> {
+    try {
+      const response = await this.drive.files.get({
+        fileId: fileId,
+        fields: 'name',
+      });
+
+      const fileName = response.data.name;
+      if (typeof fileName !== 'string') {
+        throw new Error('An error occurred while getting file name.');
+      }
+      return fileName;
+    } catch (error) {
+      console.error('Error getting image name from Google Drive:', error);
       throw error;
     }
   }
@@ -111,7 +179,7 @@ export class ImageService implements IImageService {
     }
   }
 
-  private async generatePublicUrl(fileId: string) {
+  async generatePublicUrl(fileId: string) {
     await this.drive.permissions.create({
       fileId: fileId,
       requestBody: {

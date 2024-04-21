@@ -65,6 +65,7 @@ const CategoryAndPostComponent = ({
           return updatedCategories;
         });
       }
+      console.log("category name: ", categoryName);
       networkManager
         .post(getDevUrl(getItemsByCurrentUserAndCategoryEndPoint), {
           pageIndex: 0,
@@ -91,7 +92,7 @@ const CategoryAndPostComponent = ({
         .post(getDevUrl(getItemsByCurrentUserAndCategoryEndPoint), {
           pageIndex: page,
           pageSize: 5,
-          categoryName: category,
+          categoryName: category?.name,
         })
         .then((response: ICustomResponse) => {
           if (response.success) {
