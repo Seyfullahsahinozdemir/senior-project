@@ -48,11 +48,11 @@ export function makeGetCommand({
           onFavorite: user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       } else {
-        if (!item.image.public) {
-          await imageService.generatePublicUrl(item.image.fileId);
-          item.image.public = true;
-          await itemRepository.update(item._id?.toString() as string, item);
-        }
+        // if (!item.image.public) {
+        //   await imageService.generatePublicUrl(item.image.fileId);
+        //   item.image.public = true;
+        //   await itemRepository.update(item._id?.toString() as string, item);
+        // }
 
         updatedItems.push({
           _id: item._id,

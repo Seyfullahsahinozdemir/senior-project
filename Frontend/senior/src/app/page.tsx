@@ -17,11 +17,8 @@ import {
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { User } from "@/interfaces/User";
-import UserListItem from "@/components/user/user.list.item";
 import FollowingList from "@/components/user/following.list";
-import PostCardComponent from "@/components/post/post.card";
 import { GetPostsByUserIdType } from "@/interfaces/post/get.posts.by.user.id";
-import { useRouter } from "next/navigation";
 import NarrowUserListItem from "@/components/user/simple.user.list.item";
 import NarrowFollowingListComponent from "@/components/user/simple.following.list";
 import SimplePostCardComponent from "@/components/post/simple.post.card.component";
@@ -34,7 +31,7 @@ export default function HomePage() {
   const [searchValue, setSearchValue] = useState("");
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [posts, setPosts] = useState<GetPostsByUserIdType[]>([]);
-  const router = useRouter();
+  const [isSearchBoxFocused, setIsSearchBoxFocused] = useState(false);
 
   const networkManager: NetworkManager = useAxiosWithAuthentication();
   const { handleErrorResponse } = useErrorHandling();
@@ -42,7 +39,6 @@ export default function HomePage() {
   useEffect(() => {
     if (!isAuthenticated) {
       redirect("/login");
-      return;
     }
 
     const handleResize = () => {
@@ -149,14 +145,6 @@ export default function HomePage() {
     setSelectedUser(userId);
   };
 
-  const handleSearchSelectedUser = (userId: string) => {
-    router.push(`/user/${userId}`);
-  };
-
-  const handleSearchBoxBlur = () => {
-    setSearchUserList([]);
-  };
-
   return (
     <>
       {windowWidth > 768 ? (
@@ -164,42 +152,55 @@ export default function HomePage() {
           <div className="flex">
             <div className="w-full p-4">
               <div className="mb-4 flex justify-center items-center">
-                <div className="bg-gray-200 p-4 w-96">
+                <div className="p-4 w-96">
                   <input
                     type="text"
                     placeholder="Search..."
                     value={searchValue}
                     onChange={handleSearchChange}
-                    onBlur={handleSearchBoxBlur}
+                    // onBlur={() => setIsSearchBoxFocused(false)}
+                    onFocus={() => setIsSearchBoxFocused(true)}
                     className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
                   />
-                  <div className="overflow-y-auto max-h-60">
-                    <ul className="flex justify-center flex-col">
-                      {searchUserList?.map((user) => (
-                        <div
-                          key={user._id}
-                          onClick={() => handleSearchSelectedUser(user._id)}
-                        >
-                          <UserListItem user={user} />
-                        </div>
-                      ))}
-                    </ul>
+                  <div className="overflow-y-auto max-h-60 mt-2 bg-white rounded-lg shadow-inner">
+                    <div className="flex flex-col cursor-pointer">
+                      {isSearchBoxFocused &&
+                        searchValue &&
+                        searchUserList &&
+                        searchUserList.length === 0 && (
+                          <div className="text-center text-gray-500 py-2">
+                            No users found.
+                          </div>
+                        )}
+                      {isSearchBoxFocused &&
+                        searchUserList &&
+                        searchUserList.map((user) => (
+                          <div
+                            key={user._id}
+                            className="hover:bg-gray-100 rounded-lg p-2"
+                          >
+                            <NarrowUserListItem user={user} />
+                          </div>
+                        ))}
+                    </div>
                   </div>
                 </div>
               </div>
+              <hr />
               <div
                 className="overflow-y-auto"
                 style={{ maxHeight: "calc(100vh - 4rem - 1rem)" }}
               >
-                {posts.map((post) => (
-                  <SimplePostCardComponent key={post._id} post={post} />
-                ))}
+                {posts.length > 0 ? (
+                  posts.map((post) => (
+                    <SimplePostCardComponent key={post._id} post={post} />
+                  ))
+                ) : (
+                  <div className="text-center p-4">No Post Found</div>
+                )}
               </div>
             </div>
-            <div
-              className="bg-gray-300 mt-4 mr-2"
-              style={{ maxHeight: "calc(100vh - 4rem - 1rem)" }}
-            >
+            <div>
               <FollowingList
                 followingList={followingList}
                 onUserSelect={handleSelectedUserChange}
@@ -212,49 +213,71 @@ export default function HomePage() {
         <>
           <div className="flex flex-col lg:flex-row pt-4">
             <div className="mb-4 flex justify-center items-center">
-              <div className="bg-gray-200 p-4 w-1/3 min-w-64">
+              <div className="p-4 w-1/3 min-w-64">
                 <input
                   type="text"
                   placeholder="Search..."
                   value={searchValue}
                   onChange={handleSearchChange}
-                  className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
+                  onFocus={() => setIsSearchBoxFocused(true)}
+                  // onBlur={() => {
+                  //   setIsSearchBoxFocused(false);
+                  // }}
+                  className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out shadow-sm"
                 />
-                <div className="overflow-y-auto max-h-60">
-                  <ul className="flex justify-center flex-col">
-                    {searchUserList?.map((user) => (
-                      <div
-                        key={user._id}
-                        onClick={() => handleSearchSelectedUser(user._id)}
-                      >
-                        <NarrowUserListItem user={user} />
-                      </div>
-                    ))}
-                  </ul>
+                <div className="overflow-y-auto max-h-60 mt-2 bg-white rounded-lg shadow-inner">
+                  <div className="flex flex-col cursor-pointer">
+                    {isSearchBoxFocused &&
+                      searchValue &&
+                      searchUserList &&
+                      searchUserList.length === 0 && (
+                        <div className="text-center text-gray-500 py-2">
+                          No Users Found
+                        </div>
+                      )}
+                    {isSearchBoxFocused &&
+                      searchUserList &&
+                      searchUserList.map((user) => (
+                        <div
+                          key={user._id}
+                          className="hover:bg-gray-100 rounded-lg p-2"
+                        >
+                          <NarrowUserListItem user={user} />
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div className="bg-gray-400 h-full w-full">
-              <div className="bg-gray-300 mt-4 mr-2 h-full w-full xl:w-3/4">
-                <div className="bg-gray-200 p-4 overflow-x-auto overflow-y-hidden">
-                  <p>Following List</p>
-                  <div className="flex">
+            <hr />
+            <div className="mt-4 mr-2 w-full xl:w-3/4">
+              <div className="p-6 rounded-lg shadow-md overflow-x-auto">
+                <p className="text-lg font-semibold mb-4">Following List</p>
+                {followingList.length > 0 ? (
+                  <div className="flex flex-wrap gap-4">
                     <NarrowFollowingListComponent
                       followingList={followingList}
                       onUserSelect={handleSelectedUserChange}
                       selectedUser={selectedUser}
                     />
                   </div>
-                </div>
+                ) : (
+                  <p className="text-gray-500">
+                    You can find some users by searching.
+                  </p>
+                )}
               </div>
             </div>
 
             <div>
-              <div className="bg-gray-200 p-4 h-full">
-                {posts.map((post) => (
-                  <SimplePostCardComponent key={post._id} post={post} />
-                ))}
+              <div className="bg-gray-100 p-4 h-full">
+                {posts.length > 0 ? (
+                  posts.map((post) => (
+                    <SimplePostCardComponent key={post._id} post={post} />
+                  ))
+                ) : (
+                  <div className="text-center p-4">No Post Found</div>
+                )}
               </div>
             </div>
           </div>

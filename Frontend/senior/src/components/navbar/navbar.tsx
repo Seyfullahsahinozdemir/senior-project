@@ -2,19 +2,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  authActions,
-  selectIsAuthenticated,
-  selectIsAdmin,
-} from "@/slices/auth.slice";
+import { authActions, selectIsAuthenticated } from "@/slices/auth.slice";
 
 const Navbar = () => {
   const dispatch = useDispatch();
-  const [selectedMenu, setSelectedMenu] = useState("movies");
+  const [selectedMenu, setSelectedMenu] = useState("home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const isAdmin = useSelector(selectIsAdmin);
 
   const handleLogout = () => {
     dispatch(authActions.logout());
@@ -79,7 +74,7 @@ const Navbar = () => {
                   href="/"
                   className={`block py-2 pl-3 pr-4 ${
                     selectedMenu == "home"
-                      ? "text-gray-900 bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0"
+                      ? "text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0"
                       : "text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
                   }`}
                   aria-current="page"
@@ -96,7 +91,7 @@ const Navbar = () => {
                   href="/profile"
                   className={`block py-2 pl-3 pr-4 ${
                     selectedMenu === "profile"
-                      ? "text-gray-900 bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0"
+                      ? "text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0"
                       : "text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
                   }`}
                   aria-current="page"
@@ -108,27 +103,26 @@ const Navbar = () => {
                   Profile
                 </Link>
               </li>
-              {isAdmin && (
-                <li>
-                  <Link
-                    href="/admin/dashboard"
-                    className={`block py-2 pl-3 pr-4 ${
-                      selectedMenu == "dashboard"
-                        ? "text-gray-900 bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0"
-                        : "text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
-                    }`}
-                    aria-current="page"
-                    onClick={() => {
-                      setSelectedMenu("dashboard");
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    Dashboard
-                  </Link>
-                </li>
-              )}
               <li>
-                <a
+                <Link
+                  href="/search"
+                  className={`block py-2 pl-3 pr-4 ${
+                    selectedMenu === "search"
+                      ? "text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0"
+                      : "text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
+                  }`}
+                  aria-current="page"
+                  onClick={() => {
+                    setSelectedMenu("search");
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  Search
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/login"
                   className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 cursor-pointer"
                   onClick={() => {
                     handleLogout();
@@ -136,7 +130,7 @@ const Navbar = () => {
                   }}
                 >
                   Logout
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

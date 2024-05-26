@@ -72,26 +72,15 @@ const SearchPage = () => {
   };
 
   const handleItemClicked = (id: string) => {
-    router.push(`/post/item/${id}`);
+    router.push(`/post/get-by-item/${id}`);
   };
 
   return (
     <>
-      {selectedImage && (
-        <div className="flex justify-center pt-2">
-          <Image
-            src={selectedImage}
-            alt="selected"
-            width={200}
-            height={200}
-            className="w-48 h-72 rounded-md shadow-md"
-          />
-        </div>
-      )}
       <div className="flex">
         <div className="w-full p-4">
-          <div className="mb-4 flex justify-center items-center">
-            <div className="bg-gray-200 p-4 w-96">
+          <div className="mb-4 flex flex-col justify-center items-center">
+            <div className="bg-gray-50 p-4 w-96 rounded-xl">
               <label
                 htmlFor="itemPicture"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -108,31 +97,49 @@ const SearchPage = () => {
               />
               <label
                 htmlFor="itemPicture"
-                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 cursor-pointer dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 cursor-pointer hover:shadow-lg"
               >
                 Choose File
               </label>
             </div>
+            {selectedImage && (
+              <div className="flex justify-center pt-3 hover:shadow-lg">
+                <Image
+                  src={selectedImage}
+                  alt="selected"
+                  width={200}
+                  height={200}
+                  className="w-48 h-72 rounded-md shadow-md"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
+      <hr />
       <div>
         <div className="flex items-center justify-center flex-wrap gap-3 pt-4">
-          {similarItems.map((item, index) => (
-            <div
-              key={index}
-              onClick={() => handleItemClicked(item._id)}
-              className="cursor-pointer"
-            >
-              <SearchItemCardComponent item={item} />
-            </div>
-          ))}
-          {similarItems.length > 0 ? (
-            <LoadMoreButton onClick={handleLoadMoreSimilarItems} />
+          {selectedImage === null ? (
+            <div>Please upload an image to find similar items.</div>
+          ) : similarItems.length > 0 ? (
+            <>
+              {similarItems.map((item, index) => (
+                <SearchItemCardComponent
+                  key={index}
+                  handleItemClicked={handleItemClicked}
+                  item={item}
+                />
+              ))}
+            </>
           ) : (
-            ""
+            "There is no similar items."
           )}
         </div>
+        {similarItems.length > 0 && (
+          <div className="flex justify-center py-2">
+            <LoadMoreButton onClick={handleLoadMoreSimilarItems} />
+          </div>
+        )}
       </div>
     </>
   );

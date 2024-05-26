@@ -54,16 +54,25 @@ const PostsByItemPage = () => {
   };
 
   return (
-    <>
-      <div className="flex items-center justify-center flex-wrap gap-3 pt-4">
-        {posts?.map((post) => (
-          <SimplePostCardComponent key={post._id} post={post} />
-        ))}
-      </div>
-      <div className="flex justify-center mt-4">
+    <div className="bg-gray-50">
+      {posts && posts.length > 0 ? (
+        // grid grid-cols-1 gap-3 pt-4 w-11/12
+        <div className="w-3/5 mx-auto">
+          {posts.map((post) => (
+            <SimplePostCardComponent key={post._id} post={post} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center pt-4">
+          <p className="text-gray-500">
+            No posts found that match the search criteria.
+          </p>
+        </div>
+      )}
+      <div className="flex justify-center py-4">
         <LoadMoreButton onClick={handleLoadMorePosts} />
       </div>
-    </>
+    </div>
   );
 };
 

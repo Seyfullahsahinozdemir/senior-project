@@ -23,6 +23,7 @@ export function makeGetFavoriteItemsByCurrentUserCommand({
         const fileId = await imageService.findFileIdByName(
           (item.image.filename as string) + (item.image.mimetype == MimetypeEnum.JPEG ? '.jpg' : '.png'),
         );
+        const currentUser = await userRepository.findOne(authService.currentUserId as string);
         updatedItems.push({
           _id: item._id,
           urlName: item.urlName,
@@ -40,9 +41,11 @@ export function makeGetFavoriteItemsByCurrentUserCommand({
             email: user.email,
           },
           me: item.createdBy === authService.currentUserId ? true : false,
-          onFavorite: user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
+          onFavorite: currentUser.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       } else {
+        const currentUser = await userRepository.findOne(authService.currentUserId as string);
+
         updatedItems.push({
           _id: item._id,
           urlName: item.urlName,
@@ -60,7 +63,7 @@ export function makeGetFavoriteItemsByCurrentUserCommand({
             email: user.email,
           },
           me: item.createdBy === authService.currentUserId ? true : false,
-          onFavorite: user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
+          onFavorite: currentUser.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       }
     }

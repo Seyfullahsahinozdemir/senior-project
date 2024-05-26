@@ -10,6 +10,7 @@ export type GetUserProfileByUser = Readonly<{
 export function makeGetUserProfileByUserCommand({
   userRepository,
   userService,
+  authService,
 }: Pick<Dependencies, 'authService' | 'userRepository' | 'userService'>) {
   return async function getProfileCommand(command: GetUserProfileByUser, res: Response) {
     await validate(command);
@@ -49,6 +50,7 @@ export function makeGetUserProfileByUserCommand({
     updatedUser.preferences = result.preferences;
     updatedUser.following = followingList;
     updatedUser.followers = followerList;
+    updatedUser.isFollow = result.followers.some((followerId) => followerId.toString() === authService.currentUserId);
 
     return new CustomResponse({ user: updatedUser }, 'success').success(res);
   };

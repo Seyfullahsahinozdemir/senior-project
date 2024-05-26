@@ -163,19 +163,19 @@ const PostDetailPage = () => {
 
   return (
     <>
-      <div>
+      <div className="w-3/4 mx-auto justify-center items-center mb-4">
         {post && <SimplePostCardComponent post={post} />}
-
-        <CommentComponent
-          content={content}
-          setContent={setContent}
-          handlePostComment={handlePostComment}
-          handleLoadMoreComments={handleLoadMoreComments}
-          comments={comments}
-          postId={post?._id as string}
-          handleRemoveComment={handleRemoveComment}
-        />
       </div>
+
+      <CommentComponent
+        content={content}
+        setContent={setContent}
+        handlePostComment={handlePostComment}
+        handleLoadMoreComments={handleLoadMoreComments}
+        comments={comments}
+        postId={post?._id as string}
+        handleRemoveComment={handleRemoveComment}
+      />
     </>
   );
 };

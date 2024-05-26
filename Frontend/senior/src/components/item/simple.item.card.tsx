@@ -19,6 +19,8 @@ const SimpleItemCardComponent = ({ item }: { item: GetItemsByCurrentUser }) => {
   const [saved, setSaved] = useState<boolean>(item.onFavorite);
   const networkManager: NetworkManager = useAxiosWithAuthentication();
   const { handleErrorResponse } = useErrorHandling();
+  const [showFullDescription, setShowFullDescription] =
+    useState<boolean>(false);
 
   const handleSaveToCollection = async () => {
     try {
@@ -56,19 +58,56 @@ const SimpleItemCardComponent = ({ item }: { item: GetItemsByCurrentUser }) => {
     }
   };
 
+  const renderDescription = () => {
+    if (!item.description) return;
+    if (item.description.length <= 100) {
+      return item.description;
+    }
+
+    if (showFullDescription) {
+      return (
+        <>
+          {item.description}{" "}
+          <button
+            onClick={() => setShowFullDescription(false)}
+            className="text-blue-600 hover:underline"
+          >
+            Show less
+          </button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          {item.description.substring(0, 100)}...{" "}
+          <button
+            onClick={() => setShowFullDescription(true)}
+            className="text-blue-600 hover:underline"
+          >
+            Show more
+          </button>
+        </>
+      );
+    }
+  };
+
   return (
     <>
-      <div className="bg-gray-50 dark:bg-black p-10 flex items-center justify-center w-[500px]">
+      <div className="bg-gray-50 dark:bg-black p-10 flex items-center justify-center w-[500px] rounded-xl hover:shadow-lg">
         <div className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-800 p-4 rounded-xl border max-w-xl relative">
           <div className="flex justify-between">
-            <div className="flex items-center">
-              <div className="ml-1.5 text-sm leading-tight">
-                <h2 className="text-lg font-semibold pr-2">
-                  {item.title ? item.title : item.urlName}
-                </h2>
-                <span className="text-gray-500 dark:text-gray-400 font-normal block">
-                  {formatDate(item.createdAt)}
-                </span>
+            <div className="w-72">
+              <div className="flex justify-between">
+                <div className="flex items-center">
+                  <div className="ml-1.5 text-sm leading-tight">
+                    <h2 className="text-lg font-semibold pr-2">
+                      {item.title ? item.title : item.urlName}
+                    </h2>
+                    <span className="text-gray-500 font-normal block mt-1">
+                      {formatDate(item.createdAt)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
             <div
@@ -82,18 +121,19 @@ const SimpleItemCardComponent = ({ item }: { item: GetItemsByCurrentUser }) => {
               )}
             </div>
           </div>
-          <p className="text-black dark:text-white block text-xl leading-snug mt-3">
-            {item.description}
+          <p className="block text-lg leading-snug mt-3 font-thin">
+            {renderDescription()}
           </p>
           {item.image.filename && (
             <div className="flex justify-center mt-4">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_STORAGE_URL}${item.image.fileId}`}
-                alt="item image"
-                width={200}
-                height={200}
-                className="w-48 h-72 rounded-md shadow-md"
-              />
+              <div className="p-2 border-2 w-64 h-64 flex justify-center items-center hover:shadow-lg">
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_STORAGE_URL}${item.image.fileId}`}
+                  alt="Item"
+                  width={150}
+                  height={150}
+                />
+              </div>
             </div>
           )}
         </div>

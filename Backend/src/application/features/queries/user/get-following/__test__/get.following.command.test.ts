@@ -8,11 +8,24 @@ jest.mock('../get.following.command.validator', () => ({
 
 describe('GetFollowing Command', () => {
   const userServiceMock = {
-    follow: jest.fn(),
-    unFollow: jest.fn(),
+    // follow: jest.fn(),
+    // unFollow: jest.fn(),
+    // getFollowers: jest.fn(),
+    // getFollowing: jest.fn(),
+    // listUsers: jest.fn(),
+
     getFollowers: jest.fn(),
     getFollowing: jest.fn(),
+    follow: jest.fn(),
+    unFollow: jest.fn(),
     listUsers: jest.fn(),
+    listUsersByUsername: jest.fn(),
+    updateUser: jest.fn(),
+    getProfileByUser: jest.fn(),
+    getFavoriteItemsByUserId: jest.fn(),
+    getFavoriteItemsByCurrentUser: jest.fn(),
+    addFavoriteItem: jest.fn(),
+    deleteFavoriteItem: jest.fn(),
   };
 
   const dependenciesMock = {
@@ -28,7 +41,6 @@ describe('GetFollowing Command', () => {
       const command: GetFollowingCommandRequest = {
         pageIndex: 0,
         pageSize: 10,
-        _id: 'user1',
       };
 
       const resMock: any = {
@@ -52,7 +64,6 @@ describe('GetFollowing Command', () => {
       const command: GetFollowingCommandRequest = {
         pageIndex: 'invalid', // Invalid type for pageIndex
         pageSize: 10,
-        _id: 'user1',
       };
 
       const resMock: any = {

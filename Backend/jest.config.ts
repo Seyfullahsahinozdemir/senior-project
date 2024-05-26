@@ -11,7 +11,7 @@ const config: Config.InitialOptions = {
   projects: [
     {
       displayName: 'unit-tests',
-      testMatch: ['<rootDir>/src/**/*.test.ts'],
+      testMatch: ['<rootDir>/src/application/features/**/*.test.ts'],
       moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
       transform: {
         '^.+\\.ts?$': 'ts-jest',

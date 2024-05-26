@@ -14,6 +14,8 @@ export const getFollowingEndpoint = "/user/get-following";
 export const getUsersByUsernameEndpoint = "/user/get-users-by-username";
 export const updateUserEndPoint = "/user/update";
 export const getUserProfileByUserEndPoint = "/user/get-user-profile-by-user";
+export const followUserEndPoint = "/user/follow";
+export const unFollowUserEndPoint = "/user/unFollow";
 
 // post
 export const getPosts = "/post/get";

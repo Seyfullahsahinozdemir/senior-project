@@ -103,10 +103,7 @@ export function userController({ dependencies, router }: { dependencies: Depende
     dependencies.authenticationMiddleware.authenticateForUser,
     async function follow(request: Request, response: Response, next: NextFunction) {
       try {
-        const result = await dependencies.user.commands.follow(
-          { currentUserId: request.user.id, targetUserId: request.body.targetUserId },
-          response,
-        );
+        const result = await dependencies.user.commands.follow({ targetUserId: request.body.targetUserId }, response);
         return result;
       } catch (error) {
         return next(error);
@@ -119,10 +116,7 @@ export function userController({ dependencies, router }: { dependencies: Depende
     dependencies.authenticationMiddleware.authenticateForUser,
     async function unFollow(request: Request, response: Response, next: NextFunction) {
       try {
-        const result = await dependencies.user.commands.unFollow(
-          { currentUserId: request.user.id, targetUserId: request.body.targetUserId },
-          response,
-        );
+        const result = await dependencies.user.commands.unFollow({ targetUserId: request.body.targetUserId }, response);
         return result;
       } catch (error) {
         return next(error);

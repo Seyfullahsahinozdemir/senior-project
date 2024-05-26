@@ -1,89 +1,129 @@
+import { Response } from 'express';
 import { makeGetCategoriesCommand, GetCategoriesCommandRequest } from '../get.category.command';
 import { ValidationException } from '@application/exceptions';
 import CustomResponse from '@application/interfaces/custom.response';
+import { PaginatedRequest } from '@application/dto/common/paginated.request';
+import { validate } from '../get.category.command.validator';
+import { ICategoryService } from '@application/interfaces';
 
-describe('GetCategories Command', () => {
-  const categoryServiceMock = {
-    getCategories: jest.fn(),
-    updateCategory: jest.fn(),
-    createCategory: jest.fn(),
-    deleteCategory: jest.fn(),
-  };
+// Mock dependencies
+const categoryServiceMock: Partial<ICategoryService> = {
+  getCategories: jest.fn(),
+  updateCategory: jest.fn(), // Add other methods to satisfy the interface
+  createCategory: jest.fn(),
+  deleteCategory: jest.fn(),
+};
 
-  const dependenciesMock = {
-    categoryService: categoryServiceMock,
-  };
+const dependenciesMock = {
+  categoryService: categoryServiceMock as ICategoryService,
+};
 
-  afterEach(() => {
-    jest.clearAllMocks();
+// Create mock response object
+const resMock: Partial<Response> = {
+  json: jest.fn(),
+  status: jest.fn().mockReturnThis(),
+};
+
+// Mock the validate function
+jest.mock('../get.category.command.validator', () => ({
+  validate: jest.fn(),
+}));
+
+// Clean up mocks after each test
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('getCategoriesCommand', () => {
+  const getCategoriesCommand = makeGetCategoriesCommand(dependenciesMock);
+
+  it('should call validate and categoryService.getCategories, then return success response', async () => {
+    const command: GetCategoriesCommandRequest = {
+      pageIndex: '0',
+      pageSize: '10',
+    };
+
+    const mockCategories = [
+      { _id: '1', name: 'Category 1' },
+      { _id: '2', name: 'Category 2' },
+    ];
+
+    // Setup mock implementations
+    (validate as jest.Mock).mockResolvedValue(undefined);
+    (categoryServiceMock.getCategories as jest.Mock).mockResolvedValue(mockCategories);
+
+    // Execute command
+    await getCategoriesCommand(command, resMock as Response);
+
+    // Assertions
+    expect(validate).toHaveBeenCalledWith(command);
+    expect(categoryServiceMock.getCategories).toHaveBeenCalledWith({
+      pageIndex: '0',
+      pageSize: '10',
+    } as PaginatedRequest);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      data: mockCategories.map((category) => ({
+        _id: category._id,
+        name: category.name,
+      })),
+      message: 'success',
+      success: true,
+    });
   });
 
-  describe('makeGetCategoriesCommand', () => {
-    it('should call validate and categoryService.getCategories, then return success response', async () => {
-      const command: GetCategoriesCommandRequest = {
-        pageIndex: '0',
-        pageSize: '10',
-      };
+  it('should handle validation errors', async () => {
+    const command: GetCategoriesCommandRequest = {
+      pageIndex: 'invalid',
+      pageSize: 10,
+    };
 
-      const resMock: any = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      };
-
-      const getCategoriesCommand = makeGetCategoriesCommand(dependenciesMock);
-
-      categoryServiceMock.getCategories.mockResolvedValue(['category1', 'category2']);
-
-      await getCategoriesCommand(command, resMock);
-
-      expect(categoryServiceMock.getCategories).toHaveBeenCalledWith(command);
-      expect(resMock.json).toHaveBeenCalledWith({
-        data: ['category1', 'category2'],
-        message: 'success',
-        success: true,
-      });
+    const validationError = new ValidationException('Validation error');
+    (validate as jest.Mock).mockImplementation(() => {
+      throw validationError;
     });
 
-    it('should handle validation errors', async () => {
-      const command: GetCategoriesCommandRequest = {
-        pageIndex: 'invalid', // Invalid type for pageIndex
-        pageSize: 10,
-      };
+    // Execute command and catch error
+    await expect(getCategoriesCommand(command, resMock as Response)).rejects.toThrow(ValidationException);
 
-      const resMock: any = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      };
+    // Assertions
+    expect(validate).toHaveBeenCalledWith(command);
+    expect(categoryServiceMock.getCategories).not.toHaveBeenCalled();
 
-      const getCategoriesCommand = makeGetCategoriesCommand(dependenciesMock);
+    const customResponse = new CustomResponse(null, 'Validation failed.');
+    customResponse.error400(resMock as Response);
 
-      try {
-        await getCategoriesCommand(command, resMock);
-        // If there is no validation error, fail the test
-      } catch (error: any) {
-        // Expect a ValidationException to be thrown
-        expect(error).toBeInstanceOf(ValidationException);
-        expect(error.errors).toHaveLength(1); // Adjust this based on your actual validation rules
+    // Ensure that the response is formatted correctly
+    expect(resMock.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: null,
+        message: 'Validation failed.',
+        success: false,
+      }),
+    );
 
-        // Ensure that categoryService.getCategories is not called in case of validation error
-        expect(categoryServiceMock.getCategories).not.toHaveBeenCalled();
+    // Ensure that the status code is set to 400
+    expect(resMock.status).toHaveBeenCalledWith(400);
+  });
 
-        // Assuming you have a method to handle ValidationException in CustomResponse
-        const customResponse = new CustomResponse(null, 'Validation failed.');
-        customResponse.error400(resMock);
+  it('should handle categoryService.getCategories errors', async () => {
+    const command: GetCategoriesCommandRequest = {
+      pageIndex: '0',
+      pageSize: '10',
+    };
 
-        // Ensure that the response is formatted correctly
-        expect(resMock.json).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: null,
-            message: 'Validation failed.',
-            success: false,
-          }),
-        );
+    const serviceError = new Error('Service error');
+    (validate as jest.Mock).mockResolvedValue(undefined);
+    (categoryServiceMock.getCategories as jest.Mock).mockRejectedValue(serviceError);
 
-        // Ensure that the status code is set to 400
-        expect(resMock.status).toHaveBeenCalledWith(400);
-      }
-    });
+    // Execute command and catch error
+    await expect(getCategoriesCommand(command, resMock as Response)).rejects.toThrow(serviceError);
+
+    // Assertions
+    expect(validate).toHaveBeenCalledWith(command);
+    expect(categoryServiceMock.getCategories).toHaveBeenCalledWith({
+      pageIndex: '0',
+      pageSize: '10',
+    } as PaginatedRequest);
   });
 });

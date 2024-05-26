@@ -22,13 +22,13 @@ const FollowingList: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-gray-200 p-4 w-64 h-screen overflow-y-auto">
+    <div className="bg-gray-50 p-4 w-64 h-screen overflow-y-auto">
       <p className="text-lg font-semibold mb-4">Following List</p>
-      {followingList &&
+      {followingList && followingList.length > 0 ? (
         followingList.map((user) => (
           <div
             key={user._id}
-            className={`bg-white p-4 my-2 flex items-center cursor-pointer hover:bg-gray-100 shadow-md rounded-lg ${
+            className={`bg-white p-4 my-2 flex items-center cursor-pointer hover:bg-gray-50 shadow-md rounded-lg ${
               selectedUser === user._id ? "border-2 border-blue-500" : ""
             }`}
             onClick={() => onUserSelect(user._id)}
@@ -59,7 +59,10 @@ const FollowingList: React.FC<Props> = ({
               {user.firstName} {user.lastName} (@{user.username})
             </span>
           </div>
-        ))}
+        ))
+      ) : (
+        <p className="text-gray-500">You can find some users by searching.</p>
+      )}
     </div>
   );
 };

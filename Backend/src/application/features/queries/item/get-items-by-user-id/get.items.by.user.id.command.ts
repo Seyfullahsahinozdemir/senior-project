@@ -22,7 +22,7 @@ export function makeGetItemsByUserIdCommand({
     for (const item of items) {
       const user = await userRepository.findOne(item.createdBy as string);
 
-      if (!item.image.fileId) {
+      if (item.image && !item.image.fileId) {
         const fileId = await imageService.findFileIdByName(
           (item.image.filename as string) + (item.image.mimetype == MimetypeEnum.JPEG ? '.jpg' : '.png'),
         );
@@ -48,11 +48,11 @@ export function makeGetItemsByUserIdCommand({
             email: user.email,
           },
           me: item.createdBy === authService.currentUserId ? true : false,
-          onFavorite: user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
+          onFavorite: user && user.favoriteItems && user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       } else {
         if (!item.image.public) {
-          await imageService.generatePublicUrl(item.image.fileId);
+          await imageService.generatePublicUrl(item.image.fileId as string);
           item.image.public = true;
           await itemRepository.update(item._id?.toString() as string, item);
         }
@@ -73,7 +73,7 @@ export function makeGetItemsByUserIdCommand({
             email: user.email,
           },
           me: item.createdBy === authService.currentUserId ? true : false,
-          onFavorite: user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
+          onFavorite: user && user.favoriteItems && user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       }
     }

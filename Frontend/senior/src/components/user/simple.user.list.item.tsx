@@ -1,10 +1,15 @@
 import React from "react";
 import Image from "next/image";
 import { User } from "@/interfaces/User";
+import { useRouter } from "next/navigation";
 
 const NarrowUserListItem = ({ user }: { user: User }) => {
+  const router = useRouter();
   return (
-    <li className="bg-white shadow-md p-1 my-2 flex items-center mx-auto w-48 rounded-lg cursor-pointer transition duration-300 ease-in-out hover:shadow-lg">
+    <li
+      onClick={() => router.push(`/user/${user._id}`)}
+      className="bg-white shadow-md p-1 my-2 flex items-center mx-auto w-48 rounded-lg transition duration-300 ease-in-out hover:shadow-lg"
+    >
       {user.preferences && user.preferences.image && (
         <div className="w-14 h-14 mr-2 overflow-hidden rounded-full">
           <Image

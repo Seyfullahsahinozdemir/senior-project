@@ -3,11 +3,13 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import NetworkManager from "@/network/network.manager";
 import {
+  followUserEndPoint,
   getDevUrl,
   getFavoriteItemsByUserIdEndPoint,
   getItemsByUserId,
   getPostsByUserId,
   getUserProfileByUserEndPoint,
+  unFollowUserEndPoint,
 } from "@/network/endpoints";
 import { useAxiosWithAuthentication } from "@/helpers/auth.axios.hook";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,6 +25,7 @@ import { GetItemsByCurrentUser } from "@/interfaces/item/get.items.by.current.us
 import SimplePostCardComponent from "@/components/post/simple.post.card.component";
 import SimpleItemCardComponent from "@/components/item/simple.item.card";
 import LoadMoreButton from "@/components/common/load.button";
+import { toast } from "react-toastify";
 
 const UserProfilePage = () => {
   const [user, setUser] = useState<User>();
@@ -34,6 +37,7 @@ const UserProfilePage = () => {
   const [page, setPage] = useState(0);
   const [selectedButton, setSelectedButton] = useState<string>("posts");
   const [favoriteChecked, setFavoriteChecked] = useState(false);
+  const [followState, setFollowState] = useState(false);
 
   const pathname = usePathname();
   const userId = pathname.split("/").pop();
@@ -44,6 +48,7 @@ const UserProfilePage = () => {
       .then((response) => {
         if (response.success) {
           setUser(response.data.user);
+          setFollowState(response.data.user.isFollow);
         }
       })
       .catch((err) => {
@@ -150,6 +155,36 @@ const UserProfilePage = () => {
     setFavoriteChecked(!favoriteChecked);
   };
 
+  const handleFollowClick = async () => {
+    if (followState) {
+      const result: ICustomResponse = await networkManager.post(
+        getDevUrl(unFollowUserEndPoint),
+        {
+          targetUserId: user?._id,
+        }
+      );
+      if (result.success) {
+        setFollowState(false);
+        toast.success(result.message);
+      } else {
+        toast.error("An error occurred while unfollow user.");
+      }
+    } else {
+      const result: ICustomResponse = await networkManager.post(
+        getDevUrl(followUserEndPoint),
+        {
+          targetUserId: user?._id,
+        }
+      );
+      if (result.success) {
+        setFollowState(true);
+        toast.success(result.message);
+      } else {
+        toast.error("An error occurred while follow user.");
+      }
+    }
+  };
+
   return (
     <div>
       <div className="container mx-auto my-5 p-5">
@@ -178,6 +213,23 @@ const UserProfilePage = () => {
                 <li className="flex items-center py-3">
                   <span>Member since</span>
                   <span className="ml-auto">{formatDate(user?.createdAt)}</span>
+                </li>
+                <li className="flex items-center py-3">
+                  <span>Followers</span>
+                  <span className="ml-auto">{user?.followers?.length}</span>
+                </li>
+                <li className="flex items-center py-3">
+                  <span>Following</span>
+                  <span className="ml-auto">{user?.following?.length}</span>
+                </li>
+                <li className="flex items-center py-3">
+                  <span>Followed</span>
+                  <button
+                    onClick={handleFollowClick}
+                    className="ml-auto mt-3 py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    {followState ? "Unfollow" : "Follow"}
+                  </button>
                 </li>
               </ul>
             </div>
@@ -278,7 +330,7 @@ const UserProfilePage = () => {
 
               {selectedButton === "posts" ? (
                 <>
-                  <div className="flex items-center justify-center flex-wrap gap-3 pt-4">
+                  <div className="grid grid-cols-1 gap-3 pt-4 w-11/12">
                     {posts?.map((post) => (
                       <SimplePostCardComponent key={post._id} post={post} />
                     ))}

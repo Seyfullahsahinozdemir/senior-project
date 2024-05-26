@@ -10,7 +10,7 @@ export type GetPostsByUserIdType = {
     username: string;
     image: { filename: string; mimetype: string };
   };
-  items: [{ image: { filename: string } }];
+  items: [{ _id: string; image: { filename: string } }];
   comments: any[];
   liked: boolean;
 };

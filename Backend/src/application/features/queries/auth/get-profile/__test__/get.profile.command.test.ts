@@ -1,92 +1,126 @@
-import { makeGetProfileCommand, GetProfileCommandRequest } from '../get.profile.command';
-import { ValidationException } from '@application/exceptions';
-import CustomResponse from '@application/interfaces/custom.response';
+// Import necessary modules and dependencies
+import { Response } from 'express';
+import { IAuthService } from '@application/interfaces';
+import { makeGetProfileCommand } from '../get.profile.command';
+import { NotFoundException } from '@application/exceptions';
+import { IUserRepository } from '@application/persistence';
 
-describe('GetProfile Command', () => {
-  const authServiceMock = {
-    currentUserId: null, // or provide a dummy value
-    login: jest.fn(),
-    register: jest.fn(),
-    verifyForLogin: jest.fn(),
-    getMyProfile: jest.fn(),
-    resetPassword: jest.fn(),
-    verifyForResetPassword: jest.fn(),
-  };
+// Mock dependencies
+const authServiceMock: Partial<IAuthService> = {
+  currentUserId: 'user123',
+  getMyProfile: jest.fn(),
+};
+const userRepositoryMock: Partial<IUserRepository> = {
+  findOne: jest.fn(),
+};
 
-  const dependenciesMock = {
-    authService: authServiceMock,
-  };
+const dependenciesMock = {
+  authService: authServiceMock as IAuthService,
+  userRepository: userRepositoryMock as IUserRepository,
+};
 
-  afterEach(() => {
-    jest.clearAllMocks();
+// Create mock response object
+const resMock: Partial<Response> = {
+  json: jest.fn(),
+  status: jest.fn().mockReturnThis(),
+};
+
+// Clean up mocks after each test
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('getProfileCommand', () => {
+  const getProfileCommand = makeGetProfileCommand(dependenciesMock);
+
+  it('should return user profile successfully', async () => {
+    // Mock data
+    const mockUserProfile = {
+      _id: 'user123',
+      createdAt: new Date(),
+      firstName: 'John',
+      lastName: 'Doe',
+      username: 'johndoe',
+      email: 'johndoe@example.com',
+      preferences: {},
+      following: ['user456'],
+      followers: ['user789'],
+    };
+
+    const mockFollowingUser = {
+      _id: 'user456',
+      firstName: 'Jane',
+      lastName: 'Smith',
+      username: 'janesmith',
+      email: 'janesmith@example.com',
+    };
+
+    const mockFollowerUser = {
+      _id: 'user789',
+      firstName: 'Bob',
+      lastName: 'Brown',
+      username: 'bobbrown',
+      email: 'bobbrown@example.com',
+    };
+
+    // Setup mock implementations
+    (authServiceMock.getMyProfile as jest.Mock).mockResolvedValue(mockUserProfile);
+    (userRepositoryMock.findOne as jest.Mock)
+      .mockResolvedValueOnce(mockFollowingUser)
+      .mockResolvedValueOnce(mockFollowerUser);
+
+    // Execute command
+    await getProfileCommand(resMock as Response);
+
+    // Assertions
+    expect(authServiceMock.getMyProfile).toHaveBeenCalledWith(authServiceMock.currentUserId);
+    expect(userRepositoryMock.findOne).toHaveBeenCalledTimes(2);
+    expect(userRepositoryMock.findOne).toHaveBeenCalledWith('user456');
+    expect(userRepositoryMock.findOne).toHaveBeenCalledWith('user789');
+
+    const expectedResponse = {
+      user: {
+        _id: 'user123',
+        createdAt: mockUserProfile.createdAt,
+        firstName: 'John',
+        lastName: 'Doe',
+        username: 'johndoe',
+        email: 'johndoe@example.com',
+        preferences: {},
+        following: [mockFollowingUser],
+        followers: [mockFollowerUser],
+      },
+    };
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      data: expectedResponse,
+      message: 'success',
+      success: true,
+    });
   });
 
-  describe('makeGetProfileCommand', () => {
-    it('should call validate and authService.getMyProfile, then return success response', async () => {
-      const command: GetProfileCommandRequest = {
-        _id: 'user123',
-      };
+  it('should throw NotFoundException if current user is not found', async () => {
+    // Setup mock implementation
+    authServiceMock.currentUserId = null;
 
-      const resMock: any = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      };
+    // Execute command and catch error
+    await expect(getProfileCommand(resMock as Response)).rejects.toThrow(NotFoundException);
 
-      const getProfileCommand = makeGetProfileCommand(dependenciesMock);
+    // Assertions
+    expect(authServiceMock.getMyProfile).not.toHaveBeenCalled();
+    expect(userRepositoryMock.findOne).not.toHaveBeenCalled();
+  });
 
-      authServiceMock.getMyProfile.mockResolvedValue({
-        /* mocked user profile data */
-      });
+  it('should throw NotFoundException if user profile is not found', async () => {
+    // Setup mock implementations
+    authServiceMock.currentUserId = 'user123';
+    (authServiceMock.getMyProfile as jest.Mock).mockRejectedValue(new NotFoundException('User not found.'));
 
-      await getProfileCommand(command, resMock);
+    // Execute command and catch error
+    await expect(getProfileCommand(resMock as Response)).rejects.toThrow(NotFoundException);
 
-      expect(authServiceMock.getMyProfile).toHaveBeenCalledWith(command._id);
-      expect(resMock.json).toHaveBeenCalledWith({
-        data: { user: expect.any(Object) }, // Adjust the expectation based on the actual response structure
-        message: 'success',
-        success: true,
-      });
-    });
-
-    it('should handle validation errors', async () => {
-      const command: GetProfileCommandRequest = {
-        _id: '', // Invalid, as it's required
-      };
-
-      const resMock: any = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      };
-
-      const getProfileCommand = makeGetProfileCommand(dependenciesMock);
-
-      try {
-        await getProfileCommand(command, resMock);
-        // If there is no validation error, fail the test
-      } catch (error: any) {
-        // Expect a ValidationException to be thrown
-        expect(error).toBeInstanceOf(ValidationException);
-        expect(error.errors).toHaveLength(1); // Adjust this based on your actual validation rules
-
-        // Ensure that authService.getMyProfile is not called in case of validation error
-        expect(authServiceMock.getMyProfile).not.toHaveBeenCalled();
-
-        // Assuming you have a method to handle ValidationException in CustomResponse
-        const customResponse = new CustomResponse(null, 'Validation failed.');
-        customResponse.error400(resMock);
-
-        // Ensure that the response is formatted correctly
-        expect(resMock.json).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: null,
-            message: 'Validation failed.',
-            success: false,
-          }),
-        );
-
-        // Ensure that the status code is set to 400
-        expect(resMock.status).toHaveBeenCalledWith(400);
-      }
-    });
+    // Assertions
+    expect(authServiceMock.getMyProfile).toHaveBeenCalledWith('user123');
+    expect(userRepositoryMock.findOne).not.toHaveBeenCalled();
   });
 });

@@ -2,6 +2,7 @@ import { Comment } from "@/interfaces/Comment";
 import React from "react";
 import CommentItemComponent from "./comment.item";
 import LoadMoreButton from "../common/load.button";
+import { DiVim } from "react-icons/di";
 
 const CommentComponent = ({
   postId,
@@ -63,9 +64,15 @@ const CommentComponent = ({
             />
           ))}
 
-        <div className="flex items-center justify-center">
-          <LoadMoreButton onClick={handleLoadMoreComments} />
-        </div>
+        {comments && comments.length > 0 ? (
+          <div className="flex items-center justify-center">
+            <LoadMoreButton onClick={handleLoadMoreComments} />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center">
+            <p className="font-bold text-gray-500">No comments found.</p>
+          </div>
+        )}
       </div>
     </section>
   );

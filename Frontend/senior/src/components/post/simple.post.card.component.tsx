@@ -66,8 +66,8 @@ const SimplePostCardComponent = ({ post }: { post: GetPostsByUserIdType }) => {
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-black p-10 flex items-center justify-center">
-      <div className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-800 p-4 rounded-xl border max-w-xl">
+    <div className="bg-gray-50 p-10 items-center justify-center rounded-3xl hover:shadow-xl">
+      <div className="bg-white border-gray-200 p-4 rounded-xl border">
         <div className="flex justify-between">
           <div className="flex items-center">
             <Image
@@ -78,44 +78,45 @@ const SimplePostCardComponent = ({ post }: { post: GetPostsByUserIdType }) => {
               alt="profile-pic"
             />
             <div className="ml-1.5 text-sm leading-tight">
-              <span className="text-black dark:text-white font-bold block ">
+              <span className="text-black font-bold block ">
                 {`${post.user.firstName} ${post.user.lastName}`}
               </span>
-              <span className="text-gray-500 dark:text-gray-400 font-normal block">
+              <span className="text-gray-500 font-normal block">
                 {`${post.user.username}`}
               </span>
             </div>
           </div>
         </div>
-        <p className="text-black dark:text-white block text-xl leading-snug mt-3">
+        <p className="block text-lg leading-snug mt-3 font-thin py-3 ml-4">
           {post.content}
         </p>
-        <div className="flex flex-wrap justify-center">
+        <div className="flex flex-wrap justify-center gap-3">
           {post.items.map((item, index) => (
-            <div key={index} className="p-2">
+            <div
+              key={index}
+              className="p-2 border-2 w-64 h-64 flex justify-center items-center hover:shadow-lg"
+            >
               <Image
                 src={`${process.env.NEXT_PUBLIC_STORAGE_URL}${item.image.filename}`}
                 alt="Item"
-                width={200}
-                height={200}
+                width={150}
+                height={150}
               />
             </div>
           ))}
         </div>
 
-        <p className="text-gray-500 dark:text-gray-400 text-base py-1 my-0.5">
+        <p className="text-gray-500 text-base py-1 my-0.5">
           {formatDate(post.createdAt, true)}
         </p>
-        <div className="border-gray-200 dark:border-gray-600 border border-b-0 my-1"></div>
-        <div className="text-gray-500 dark:text-gray-400 flex mt-3">
+        <div className="border-gray-200 border border-b-0 my-1"></div>
+        <div className="text-gray-500 flex mt-3">
           <div
             className="flex items-center mr-6 cursor-pointer"
             onClick={handleLikeClick}
           >
             <AiOutlineLike
-              className={`text-gray-600 dark:text-gray-300 ${
-                liked && "text-red-500"
-              }`}
+              className={`text-gray-600 ${liked && "text-red-500"}`}
             />
             <span className="ml-1">{post.likeCount}</span>
           </div>
@@ -123,7 +124,7 @@ const SimplePostCardComponent = ({ post }: { post: GetPostsByUserIdType }) => {
             className="flex items-center cursor-pointer"
             onClick={handleCommentClick}
           >
-            <AiOutlineComment className="text-gray-600 dark:text-gray-300" />
+            <AiOutlineComment className="text-gray-600" />
             <span className="ml-1">{post.commentCount}</span>
           </div>
         </div>

@@ -30,4 +30,5 @@ export type User = {
       email: string;
     }
   ];
+  isFollow?: boolean;
 };

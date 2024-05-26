@@ -5,7 +5,6 @@ import { UnFollowCommandRequest } from './un.follow.command';
 export async function validate(command: UnFollowCommandRequest) {
   try {
     const schema: Yup.ObjectSchema<UnFollowCommandRequest> = Yup.object().shape({
-      currentUserId: Yup.string().required(),
       targetUserId: Yup.string().required(),
     });
 
