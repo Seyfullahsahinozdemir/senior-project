@@ -50,6 +50,9 @@ const MyProfilePage = () => {
       .then((response) => {
         if (response.success) {
           setUser(response.data.user);
+        } else {
+          toast.error(`Error: ${response.data.errors}`);
+          return;
         }
       })
       .catch((err) => {

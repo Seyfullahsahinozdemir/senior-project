@@ -174,7 +174,11 @@ const CategoryAndPostComponent = ({
                 width={100}
                 height={100}
               />
-              <span>{selectedItem.title}</span>
+              <span>
+                {selectedItem.title && selectedItem.title.trim() !== ""
+                  ? selectedItem.title
+                  : selectedItem.urlName}
+              </span>
             </div>
           ) : (
             <>
@@ -199,7 +203,11 @@ const CategoryAndPostComponent = ({
                         width={100}
                         height={100}
                       />
-                      <span>{item.title}</span>
+                      <span>
+                        {item.title && item.title.trim() !== ""
+                          ? item.title
+                          : item.urlName}
+                      </span>
                     </div>
                   ))}
                   <LoadMoreButton onClick={handleLoadMoreItems} />

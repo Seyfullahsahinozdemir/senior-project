@@ -155,10 +155,10 @@ export class UserService implements IUserService {
     user.firstName = info.firstName ? info.firstName : user.firstName;
     user.lastName = info.lastName ? info.lastName : user.lastName;
 
-    user.preferences.about ??= info.preferences.about;
-    user.preferences.address ??= info.preferences.address;
-    user.preferences.gender ??= info.preferences.gender;
-    user.preferences.phone ??= info.preferences.phone;
+    user.preferences.about = info.preferences.about ? info.preferences.about : user.preferences.about;
+    user.preferences.address = info.preferences.address ? info.preferences.address : user.preferences.address;
+    user.preferences.gender = info.preferences.gender ? info.preferences.gender : user.preferences.gender;
+    user.preferences.phone = info.preferences.phone ? info.preferences.phone : user.preferences.phone;
 
     if (info.preferences.image.filename !== '') {
       user.preferences.image.filename = info.preferences.image.filename;
@@ -223,7 +223,7 @@ export class UserService implements IUserService {
     }
 
     if (currentUserId == targetUserId) {
-      throw new ValidationException('Users ids same.');
+      throw new ValidationException('Users ids same. You cannot follow yourself.');
     }
 
     // Get the current user and the target user

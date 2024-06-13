@@ -44,6 +44,7 @@ const EditProfilePage = () => {
   const networkManager: NetworkManager = useAxiosWithAuthentication();
   const { handleErrorResponse } = useErrorHandling();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     networkManager
@@ -92,6 +93,7 @@ const EditProfilePage = () => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files && e.target.files[0];
     setIsSubmitting(true);
+    setLoading(true);
     if (selectedFile) {
       const allowedTypes = ["image/jpeg", "image/png"];
       if (allowedTypes.includes(selectedFile.type)) {
@@ -112,15 +114,21 @@ const EditProfilePage = () => {
             }
           );
 
-          setUploadedImage(response.data.data.image);
+          if (response.data.success) {
+            setUploadedImage(response.data.data.image);
+          }
         } catch (error) {
           console.error("Error uploading file:", error);
         } finally {
+          setLoading(false);
           setIsSubmitting(false);
         }
       } else {
         toast.error("Only JPG and PNG files are allowed.");
+        setLoading(false);
       }
+    } else {
+      setLoading(false);
     }
   };
 
@@ -319,12 +327,15 @@ const EditProfilePage = () => {
                     htmlFor="profilePicture"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 cursor-pointer"
                   >
-                    Choose File
+                    {uploadedImage?.filename || "Choose File"}
                   </label>
                 </div>
+                {loading && <p>Loading...</p>}
                 <button
                   type="submit"
-                  className={`w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center`}
+                  className={`w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ${
+                    loading ? "disabled" : ""
+                  }`}
                   onClick={handleEditButton}
                 >
                   Update

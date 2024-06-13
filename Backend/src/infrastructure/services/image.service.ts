@@ -179,14 +179,29 @@ export class ImageService implements IImageService {
     }
   }
 
-  async generatePublicUrl(fileId: string) {
-    await this.drive.permissions.create({
-      fileId: fileId,
-      requestBody: {
-        role: 'reader',
-        type: 'anyone',
-      },
-    });
+  async generatePublicUrl(fileId: string): Promise<boolean> {
+    try {
+      const file = await this.drive.files.get({
+        fileId: fileId,
+        fields: 'id',
+      });
+
+      if (!file.data.id) {
+        return false;
+      }
+
+      await this.drive.permissions.create({
+        fileId: fileId,
+        requestBody: {
+          role: 'reader',
+          type: 'anyone',
+        },
+      });
+      return true;
+    } catch (error) {
+      console.error('Error generating public URL:', error);
+      return false;
+    }
   }
 
   // async uploadImage(file: Express.Multer.File): Promise<string> {

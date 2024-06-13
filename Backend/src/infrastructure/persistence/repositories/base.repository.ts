@@ -17,7 +17,7 @@ export abstract class BaseRepository<T extends OptionalId<Document>> implements 
       const deletedDocuments = await this._collection.find(query).toArray();
       return deletedDocuments as T[];
     } else {
-      throw new Error('No documents found matching the provided query for deletion.');
+      return [];
     }
   }
 

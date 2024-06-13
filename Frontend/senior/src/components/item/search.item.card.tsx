@@ -2,6 +2,17 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { GetItemsByCurrentUser } from "@/interfaces/item/get.items.by.current.user";
 import useFormattedDate from "@/helpers/useFormattedDate.hook";
+import { AiFillSave, AiOutlineSave } from "react-icons/ai";
+import NetworkManager from "@/network/network.manager";
+import { useAxiosWithAuthentication } from "@/helpers/auth.axios.hook";
+import useErrorHandling from "@/helpers/useErrorHandler.hook";
+import { ICustomResponse } from "@/interfaces/ICustomResponse";
+import {
+  addFavoriteItemEndPoint,
+  deleteFavoriteItemEndPoint,
+  getDevUrl,
+} from "@/network/endpoints";
+import { toast } from "react-toastify";
 
 const SearchItemCardComponent = ({
   item,
@@ -13,6 +24,9 @@ const SearchItemCardComponent = ({
   const { formatDate } = useFormattedDate();
   const [showFullDescription, setShowFullDescription] =
     useState<boolean>(false);
+  const networkManager: NetworkManager = useAxiosWithAuthentication();
+  const { handleErrorResponse } = useErrorHandling();
+  const [saved, setSaved] = useState<boolean>(item.onFavorite);
 
   const renderDescription = () => {
     if (!item.description) return;
@@ -47,10 +61,58 @@ const SearchItemCardComponent = ({
     }
   };
 
+  const handleSaveToCollection = async () => {
+    try {
+      if (!saved) {
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(addFavoriteItemEndPoint),
+          {
+            itemId: item._id,
+          }
+        );
+
+        if (response.success) {
+          toast.success(response.message);
+          setSaved(true);
+        } else {
+          toast.error(response.data.errors);
+        }
+      } else {
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(deleteFavoriteItemEndPoint),
+          {
+            itemId: item._id,
+          }
+        );
+
+        if (response.success) {
+          toast.success(response.message);
+          setSaved(false);
+        } else {
+          toast.error(response.data.errors);
+        }
+      }
+    } catch (error) {
+      handleErrorResponse(error);
+    }
+  };
+
   return (
     <>
       <div className="bg-gray-50 p-10 flex items-center justify-center w-[500px] rounded-xl hover:shadow-lg">
         <div className="bg-white border-gray-200 p-4 rounded-xl border max-w-xl min-h-[400px] relative">
+          <div className="absolute top-0 right-0 p-4 flex items-center">
+            <div
+              onClick={handleSaveToCollection}
+              className="cursor-pointer hover:shadow-2xl mr-4"
+            >
+              {saved ? (
+                <AiFillSave className="text-green-600 text-2xl rounded-full" />
+              ) : (
+                <AiOutlineSave className="text-blue-600 text-2xl rounded-full" />
+              )}
+            </div>
+          </div>
           <div className="flex justify-between">
             <div className="w-72">
               <div className="flex justify-between">

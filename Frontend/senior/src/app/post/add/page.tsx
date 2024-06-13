@@ -58,7 +58,8 @@ const AddPostPage = () => {
         toast.success(response.message);
         setTimeout(() => router.push("/profile"), 1200);
       } else {
-        toast.error(response.data.errors.join(", "));
+        toast.error(`Error: ${response.data.errors}`);
+        return;
       }
     } catch (error) {
       console.log(error);

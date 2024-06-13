@@ -13,13 +13,48 @@ const mockUserRepository = {
   deleteMany: jest.fn(),
   findByUsernameAsync: jest.fn(),
   findByEmailAsync: jest.fn(),
+  aggregate: jest.fn(),
+};
+
+const mockAuthService = {
+  resetPassword: jest.fn(),
+  verifyForResetPassword: jest.fn(),
+  getMyProfile: jest.fn(),
+  verifyForLogin: jest.fn(),
+  login: jest.fn(),
+  register: jest.fn(),
+  currentUserId: null,
+};
+
+const mockImageService = {
+  uploadImage: jest.fn(),
+  deleteImage: jest.fn(),
+  findFileIdByName: jest.fn(),
+  getImage: jest.fn(),
+  getImageName: jest.fn(),
+  generatePublicUrl: jest.fn(),
+};
+
+const mockItemRepository = {
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+  deleteMany: jest.fn(),
+  find: jest.fn(),
+  findOne: jest.fn(),
+  aggregate: jest.fn(),
 };
 
 describe('UserService', () => {
   let userService: UserService;
 
   beforeEach(() => {
-    userService = new UserService({ userRepository: mockUserRepository });
+    userService = new UserService({
+      userRepository: mockUserRepository,
+      authService: mockAuthService,
+      imageService: mockImageService,
+      itemRepository: mockItemRepository,
+    });
   });
 
   afterEach(() => {
@@ -60,7 +95,7 @@ describe('UserService', () => {
 
       mockUserRepository.find.mockResolvedValue(mockFollowers);
 
-      const result = await userService.getFollowers(userId);
+      const result = await userService.getFollowers();
 
       expect(mockUserRepository.findOne).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.find).toHaveBeenCalledWith({ _id: { $in: mockUser.followers } });
@@ -68,10 +103,9 @@ describe('UserService', () => {
     });
 
     it('should throw an error if the user is not found', async () => {
-      const userId = 'nonexistentUserId';
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      await expect(userService.getFollowers(userId)).rejects.toThrowError('User not found');
+      await expect(userService.getFollowers()).rejects.toThrowError('User not found');
     });
   });
 
@@ -89,7 +123,7 @@ describe('UserService', () => {
 
       mockUserRepository.find.mockResolvedValue(mockFollowing);
 
-      const result = await userService.getFollowing(userId);
+      const result = await userService.getFollowing();
 
       expect(mockUserRepository.findOne).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.find).toHaveBeenCalledWith({ _id: { $in: mockUser.following } }, 0, 0);
@@ -97,10 +131,9 @@ describe('UserService', () => {
     });
 
     it('should throw an error if the user is not found', async () => {
-      const userId = 'nonexistentUserId';
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      await expect(userService.getFollowing(userId)).rejects.toThrowError('User not found');
+      await expect(userService.getFollowing()).rejects.toThrowError('User not found');
     });
   });
 
@@ -128,7 +161,9 @@ describe('UserService', () => {
     it('should throw an error if current user is the same as target user', async () => {
       const userId = new ObjectId().toHexString();
 
-      await expect(userService.follow(userId, userId)).rejects.toThrowError('Users ids same.');
+      await expect(userService.follow(userId, userId)).rejects.toThrowError(
+        'Users ids same. You cannot follow yourself.',
+      );
       expect(mockUserRepository.findOne).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });

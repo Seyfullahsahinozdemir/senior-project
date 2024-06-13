@@ -33,19 +33,19 @@ const PostDetailPage = () => {
   useEffect(() => {
     const fetchPostAndComments = async () => {
       try {
-        const postResponse: ICustomResponse = await networkManager.post(
+        const response: ICustomResponse = await networkManager.post(
           getDevUrl(getPostByIdEndPoint),
           {
             postId,
           }
         );
 
-        if (!postResponse.success) {
-          toast.error(postResponse.data.errors);
+        if (!response.success) {
+          toast.error(`Error: ${response.data.errors}`);
           return;
         }
 
-        setPost(postResponse.data);
+        setPost(response.data);
 
         await loadComments();
       } catch (error) {
@@ -93,6 +93,9 @@ const PostDetailPage = () => {
     if (response.success) {
       console.log(response.data);
       setComments((prevComments) => [...prevComments, ...response.data]);
+    } else {
+      toast.error(`Error: ${response.data.errors}`);
+      return;
     }
   };
 
@@ -135,7 +138,8 @@ const PostDetailPage = () => {
 
         toast.success(commentsResponse.message);
       } else {
-        toast.error(response.message);
+        toast.error(`Error: ${response.data.errors}`);
+        return;
       }
     } catch (error) {
       handleErrorResponse(error);

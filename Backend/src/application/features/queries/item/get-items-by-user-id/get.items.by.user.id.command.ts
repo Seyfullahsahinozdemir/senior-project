@@ -18,6 +18,8 @@ export function makeGetItemsByUserIdCommand({
       command.userId,
     );
 
+    const currentUser = await userRepository.findOne(authService.currentUserId as string);
+
     const updatedItems = [];
     for (const item of items) {
       const user = await userRepository.findOne(item.createdBy as string);
@@ -48,7 +50,10 @@ export function makeGetItemsByUserIdCommand({
             email: user.email,
           },
           me: item.createdBy === authService.currentUserId ? true : false,
-          onFavorite: user && user.favoriteItems && user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
+          onFavorite:
+            currentUser &&
+            currentUser.favoriteItems &&
+            currentUser.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       } else {
         if (!item.image.public) {
@@ -73,7 +78,10 @@ export function makeGetItemsByUserIdCommand({
             email: user.email,
           },
           me: item.createdBy === authService.currentUserId ? true : false,
-          onFavorite: user && user.favoriteItems && user.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
+          onFavorite:
+            currentUser &&
+            currentUser.favoriteItems &&
+            currentUser.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       }
     }

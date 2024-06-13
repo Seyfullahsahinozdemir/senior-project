@@ -14,7 +14,11 @@ export function makeDeleteCommand({
   itemRepository,
   imageRepository,
   searchService,
-}: Pick<Dependencies, 'itemService' | 'authService' | 'itemRepository' | 'imageRepository' | 'searchService'>) {
+  postRepository,
+}: Pick<
+  Dependencies,
+  'itemService' | 'authService' | 'itemRepository' | 'imageRepository' | 'searchService' | 'postRepository'
+>) {
   return async function deleteCommand(command: DeleteCommandRequest, res: Response) {
     await validate(command);
     const item = await itemRepository.findOne(command._id);
@@ -47,6 +51,8 @@ export function makeDeleteCommand({
         await imageRepository.delete(image[0]._id?.toString() as string);
       }
     }
+
+    await postRepository.deleteMany({ items: { $in: [item._id?.toString()] } });
 
     await itemService.deleteItem(command._id);
     return new CustomResponse(null, 'Item deleted successful').success(res);

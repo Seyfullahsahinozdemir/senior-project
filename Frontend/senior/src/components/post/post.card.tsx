@@ -8,6 +8,7 @@ import {
 import { GetPostsByUserIdType } from "@/interfaces/post/get.posts.by.user.id";
 import useFormattedDate from "@/helpers/useFormattedDate.hook";
 import DeletePostModal from "../modal/delete.post.modal";
+import { useRouter } from "next/navigation";
 
 const PostCardComponent = ({
   post,
@@ -19,6 +20,7 @@ const PostCardComponent = ({
   const { formatDate } = useFormattedDate();
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [showFullContent, setShowFullContent] = useState<boolean>(false);
+  const router = useRouter();
 
   const renderContent = () => {
     if (!post.content) return;
@@ -113,7 +115,10 @@ const PostCardComponent = ({
             {formatDate(post.createdAt, true)}
           </p>
           <div className="border-gray-200 border border-b-0 my-1"></div>
-          <div className="text-gray-500 flex mt-3">
+          <div
+            onClick={() => router.push(`/post/${post._id}`)}
+            className="text-gray-500 flex mt-3 cursor-pointer"
+          >
             <div className="flex items-center mr-6">
               <AiOutlineLike />
               <span className="ml-1">{post.likeCount}</span>

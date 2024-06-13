@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react";
 import useErrorHandling from "@/helpers/useErrorHandler.hook";
 import SimplePostCardComponent from "@/components/post/simple.post.card.component";
 import LoadMoreButton from "@/components/common/load.button";
+import { toast } from "react-toastify";
 
 const PostsByItemPage = () => {
   const pathname = usePathname();
@@ -46,6 +47,9 @@ const PostsByItemPage = () => {
         if (response.success) {
           setPosts((prevPosts) => [...prevPosts, ...response.data]);
           setPage((prevPage) => prevPage + 1);
+        } else {
+          toast.error(`Error: ${response.data.errors}`);
+          return;
         }
       })
       .catch((err) => {

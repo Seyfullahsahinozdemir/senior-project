@@ -46,7 +46,7 @@ const Verify = () => {
           dispatchFromRedux(authActions.logout());
           return router.push("/login");
         } else {
-          toast.error(response.message);
+          toast.error(`Error: ${response.data.errors}`);
           return;
         }
       }

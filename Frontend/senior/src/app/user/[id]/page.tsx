@@ -156,32 +156,57 @@ const UserProfilePage = () => {
   };
 
   const handleFollowClick = async () => {
-    if (followState) {
-      const result: ICustomResponse = await networkManager.post(
-        getDevUrl(unFollowUserEndPoint),
-        {
-          targetUserId: user?._id,
+    try {
+      if (followState) {
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(unFollowUserEndPoint),
+          {
+            targetUserId: user?._id,
+          }
+        );
+        if (response.success) {
+          setFollowState(false);
+          setUser((prevUser) =>
+            prevUser
+              ? {
+                  ...prevUser,
+                  followerCount: prevUser.followerCount
+                    ? prevUser.followerCount - 1
+                    : prevUser.followerCount,
+                }
+              : undefined
+          );
+          toast.success(response.message);
+        } else {
+          toast.error(`Error: ${response.data.errors}`);
         }
-      );
-      if (result.success) {
-        setFollowState(false);
-        toast.success(result.message);
       } else {
-        toast.error("An error occurred while unfollow user.");
-      }
-    } else {
-      const result: ICustomResponse = await networkManager.post(
-        getDevUrl(followUserEndPoint),
-        {
-          targetUserId: user?._id,
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(followUserEndPoint),
+          {
+            targetUserId: user?._id,
+          }
+        );
+        if (response.success) {
+          setFollowState(true);
+          setUser((prevUser) =>
+            prevUser
+              ? {
+                  ...prevUser,
+                  followerCount: prevUser.followerCount
+                    ? prevUser.followerCount + 1
+                    : prevUser.followerCount,
+                }
+              : undefined
+          );
+          toast.success(response.message);
+        } else {
+          toast.error(`Error: ${response.data.errors}`);
         }
-      );
-      if (result.success) {
-        setFollowState(true);
-        toast.success(result.message);
-      } else {
-        toast.error("An error occurred while follow user.");
       }
+    } catch (error) {
+      toast.error("An unexpected error occurred.");
+      handleErrorResponse(error);
     }
   };
 
@@ -216,11 +241,11 @@ const UserProfilePage = () => {
                 </li>
                 <li className="flex items-center py-3">
                   <span>Followers</span>
-                  <span className="ml-auto">{user?.followers?.length}</span>
+                  <span className="ml-auto">{user?.followerCount}</span>
                 </li>
                 <li className="flex items-center py-3">
                   <span>Following</span>
-                  <span className="ml-auto">{user?.following?.length}</span>
+                  <span className="ml-auto">{user?.followingCount}</span>
                 </li>
                 <li className="flex items-center py-3">
                   <span>Followed</span>

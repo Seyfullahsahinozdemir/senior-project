@@ -4,5 +4,5 @@ export interface IImageService {
   findFileIdByName(fileName: string): Promise<string>;
   getImage(fileId: string): Promise<Express.Multer.File>;
   getImageName(fileId: string): Promise<string>;
-  generatePublicUrl(fileId: string): Promise<void>;
+  generatePublicUrl(fileId: string): Promise<boolean>;
 }

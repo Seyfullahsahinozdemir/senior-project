@@ -17,6 +17,7 @@ export function makeGetFavoriteItemsByCurrentUserCommand({
 
     const updatedItems = [];
     for (const item of items) {
+      if (item == null) continue;
       const user = await userRepository.findOne(item.createdBy as string);
 
       if (!item.image.fileId) {
@@ -44,6 +45,8 @@ export function makeGetFavoriteItemsByCurrentUserCommand({
           onFavorite: currentUser.favoriteItems.map(String).includes(item._id?.toString() ?? ''),
         });
       } else {
+        if (item == null) continue;
+
         const currentUser = await userRepository.findOne(authService.currentUserId as string);
 
         updatedItems.push({

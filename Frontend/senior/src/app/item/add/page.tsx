@@ -7,14 +7,11 @@ import {
   createItemEndPoint,
   getCategoriesEndPoint,
   getDevUrl,
-  getProfileEndPoint,
-  updateUserEndPoint,
   uploadImageEndPoint,
 } from "@/network/endpoints";
 import { useRouter } from "next/navigation";
 import { ICustomResponse } from "@/interfaces/ICustomResponse";
 import useErrorHandling from "@/helpers/useErrorHandler.hook";
-import { User } from "@/interfaces/User";
 import { useAxiosWithAuthentication } from "@/helpers/auth.axios.hook";
 import axios from "axios";
 import { Category } from "@/interfaces/Category";
@@ -23,7 +20,7 @@ const AddItemPage = () => {
   const [urlName, setUrlName] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [category, setCategory] = useState<string>("");
+  const [category, setCategory] = useState<string>("hats");
   const [uploadedImage, setUploadedImage] = useState<{
     filename: string;
     fileId: string;
@@ -72,6 +69,9 @@ const AddItemPage = () => {
         setTimeout(() => {
           router.push("/profile");
         }, 1000);
+      } else {
+        toast.error(`Error: ${response.data.errors}`);
+        return;
       }
     } catch (error) {
       handleErrorResponse(error);
@@ -217,6 +217,7 @@ const AddItemPage = () => {
                   >
                     {uploadedImage?.filename || "Choose File"}
                   </label>
+                  {isSubmitting && <p>Loading...</p>}
                 </div>
                 <button
                   type="submit"

@@ -25,7 +25,10 @@ const DeleteItemModal = ({
         <h3 className="font-bold text-lg mb-4">Delete Item</h3>
         <hr />
         <div className="flex flex-col items-center justify-center mb-4">
-          <p className="text-center my-4">Do you want to delete the item?</p>
+          <p className="text-center my-4">
+            Do you want to delete the item? Additionally, the posts related to
+            this item will also be deleted.
+          </p>
           <div className="flex justify-between">
             <button
               onClick={() => {

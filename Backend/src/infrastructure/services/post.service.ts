@@ -96,7 +96,7 @@ export class PostService implements IPostService {
     const pageSize = request.pageSize ? parseInt(request.pageSize) : 10;
 
     const followingList = await this.userService.getFollowing();
-    const followingUserIds = followingList.map((user) => user._id);
+    const followingUserIds = followingList.map((user) => user._id?.toString());
 
     const posts = await this.postRepository.find({ createdBy: { $in: followingUserIds } }, pageIndex, pageSize, {
       createdAt: -1,

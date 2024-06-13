@@ -15,10 +15,10 @@ const useErrorHandling = () => {
         router.push("/login");
       }, 2000);
     } else {
-      setTimeout(() => {
-        router.push("/login");
-      }, 2000);
-      dispatch(authActions.logout());
+      // setTimeout(() => {
+      //   router.push("/login");
+      // }, 2000);
+      // dispatch(authActions.logout());
       toast.error("Cannot access API");
     }
   };

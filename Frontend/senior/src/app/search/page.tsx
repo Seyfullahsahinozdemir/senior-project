@@ -37,6 +37,11 @@ const SearchPage = () => {
               },
             }
           );
+
+          if (!response.data.success) {
+            toast.error(`Error: ${response.data.errors}`);
+            return;
+          }
           setSelectedImage(URL.createObjectURL(selectedFile));
           setSimilarItems(response.data.data);
         } catch (error) {

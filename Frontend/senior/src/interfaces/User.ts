@@ -30,5 +30,7 @@ export type User = {
       email: string;
     }
   ];
+  followerCount?: number;
+  followingCount?: number;
   isFollow?: boolean;
 };

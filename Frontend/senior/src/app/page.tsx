@@ -32,6 +32,7 @@ export default function HomePage() {
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [posts, setPosts] = useState<GetPostsByUserIdType[]>([]);
   const [isSearchBoxFocused, setIsSearchBoxFocused] = useState(false);
+  const [page, setPage] = useState<number>(0);
 
   const networkManager: NetworkManager = useAxiosWithAuthentication();
   const { handleErrorResponse } = useErrorHandling();
@@ -75,7 +76,7 @@ export default function HomePage() {
         try {
           const response: ICustomResponse = await networkManager.post(
             getDevUrl(getPostsByUserId),
-            { userId: selectedUser }
+            { userId: selectedUser, pageSize: 5, pageIndex: 0 }
           );
 
           const posts: GetPostsByUserIdType[] = response.data;
@@ -96,7 +97,7 @@ export default function HomePage() {
         try {
           const response: ICustomResponse = await networkManager.post(
             getDevUrl(getPosts),
-            {}
+            { pageSize: 5, pageIndex: 0 }
           );
 
           const posts: GetPostsByUserIdType[] = response.data;
@@ -118,6 +119,48 @@ export default function HomePage() {
       window.removeEventListener("resize", handleResize);
     };
   }, [selectedUser]);
+
+  const handleLoadMorePosts = async () => {
+    if (selectedUser) {
+      try {
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(getPostsByUserId),
+          { userId: selectedUser, pageSize: 5, pageIndex: page + 1 }
+        );
+
+        const posts: GetPostsByUserIdType[] = response.data;
+
+        if (response.success) {
+          setPosts((prevPosts) => [...prevPosts, ...posts]);
+          setPage((prevPage) => prevPage + 1);
+        } else {
+          toast.error(`Error: ${response.data.errors}`);
+          return;
+        }
+      } catch (error) {
+        handleErrorResponse(error);
+      }
+    } else {
+      try {
+        const response: ICustomResponse = await networkManager.post(
+          getDevUrl(getPosts),
+          { pageSize: 5, pageIndex: page + 1 }
+        );
+
+        const posts: GetPostsByUserIdType[] = response.data;
+
+        if (response.success) {
+          setPosts((prevPosts) => [...prevPosts, ...posts]);
+          setPage((prevPage) => prevPage + 1);
+        } else {
+          toast.error(`Error: ${response.data.errors}`);
+          return;
+        }
+      } catch (error) {
+        handleErrorResponse(error);
+      }
+    }
+  };
 
   const handleSearchChange = async (event: any) => {
     setSearchValue(event.target.value);
@@ -143,6 +186,7 @@ export default function HomePage() {
 
   const handleSelectedUserChange = (userId: string) => {
     setSelectedUser(userId);
+    setPage(0);
   };
 
   return (
@@ -197,6 +241,16 @@ export default function HomePage() {
                   ))
                 ) : (
                   <div className="text-center p-4">No Post Found</div>
+                )}
+                {posts.length > 0 && (
+                  <div className="flex justify-center mt-4">
+                    <button
+                      className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm px-6 py-2"
+                      onClick={handleLoadMorePosts}
+                    >
+                      Load More
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -277,6 +331,16 @@ export default function HomePage() {
                   ))
                 ) : (
                   <div className="text-center p-4">No Post Found</div>
+                )}
+                {posts.length > 0 && (
+                  <div className="flex justify-center mt-4">
+                    <button
+                      className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm px-6 py-2"
+                      onClick={handleLoadMorePosts}
+                    >
+                      Load More
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
